@@ -1,0 +1,1 @@
+These are the original output of the LahuConvert.prl program, that is,Mac Format versions of the original Dictionary of Lahu PC Wordstar files.The versions of these files with corrections made from the ERRATA and OBITER DICTAhave the prefix BASE instead of TEMP.  It is the BASE files that are operatedon by LahuParse.prl.

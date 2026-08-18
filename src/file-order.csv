@@ -1,0 +1,136 @@
+order,initial,first_headword,classifying_headword,note,last_headword,entry_count,base_filename,lex_filename,plaintext_filename
+1,(vowel)a,ʔ,a,(skipped 1 non-syllabic entry to classify),a-g̈ɔ̂,73,BASE.LH-A1.TXE,lex.LH-A1.TXE.txt,BASE.LH-A1.TXE.txt
+2,(vowel)a,a-ša=fū-cû  ~  á-ša=fū-cû,a-ša=fū-cû  ~  á-ša=fū-cû,,á-phàʔ  ~  ɔ̀-phàʔ,71,BASE.LH-A2.TXE,lex.LH-A2.TXE.txt,BASE.LH-A2.TXE.txt
+3,(vowel)a,á-phèʔ,á-phèʔ,,àʔ,70,BASE.LH-A3.TXE,lex.LH-A3.TXE.txt,BASE.LH-A3.TXE.txt
+4,(vowel)i,i,i,,ů-po̊-šín,42,BASE.LH-IU.TXE,lex.LH-IU.TXE.txt,BASE.LH-IU.TXE.txt
+5,(vowel)e,e,e,,ɛ̀ʔ-lɛ̀ʔ ɛ̀ʔ-lɛ̀ʔ te ve,63,BASE.LH-EOE.TXE,lex.LH-EOE.TXE.txt,BASE.LH-EOE.TXE.txt
+6,(vowel)ɔ,ɔ,ɔ,,ɔ̀-qhwèʔ,77,BASE.LH-OH1.TXE,lex.LH-OH1.TXE.txt,BASE.LH-OH1.TXE.txt
+7,(vowel)ɔ,ɔ̀(n)  ~  ɔ̄(n),ɔ̀(n)  ~  ɔ̄(n),,wɛ̄,27,BASE.LH-OH8.TXE,lex.LH-OH8.TXE.txt,BASE.LH-OH8.TXE.txt
+8,(vowel)ɔ,ɔ̀-ca,ɔ̀-ca,,ɔ̀=tɔ̀ʔ-ma,110,BASE.LH-OH3.TXE,lex.LH-OH3.TXE.txt,BASE.LH-OH3.TXE.txt
+9,(vowel)ɔ,ɔ̀-ha  ~  ɔ̀-han,ɔ̀-ha  ~  ɔ̀-han,,ɔ̀-šwɛ̀,72,BASE.LH-OH6.TXE,lex.LH-OH6.TXE.txt,BASE.LH-OH6.TXE.txt
+10,(vowel)ɔ,ɔ̀-phâ(n),ɔ̀-phâ(n),,ɔ̀-máy,81,BASE.LH-OH5.TXE,lex.LH-OH5.TXE.txt,BASE.LH-OH5.TXE.txt
+11,(vowel)ɔ,ɔ̀-thán,ɔ̀-thán,,ɔ̀-pə̀  ~  ɔ̀=pə̀-è,98,BASE.LH-OH4.TXE,lex.LH-OH4.TXE.txt,BASE.LH-OH4.TXE.txt
+12,(vowel)ɔ,ɔ̀-yâ,ɔ̀-yâ,,ɔ̀-lwɛ̂ʔ  ~  ɔ̀-lɔ̂ʔ,50,BASE.LH-OH7.TXE,lex.LH-OH7.TXE.txt,BASE.LH-OH7.TXE.txt
+13,(vowel)ɔ,ɔ̀=ká-ku,ɔ̀=ká-ku,,ɔ̀-ŋɔ,65,BASE.LH-OH2.TXE,lex.LH-OH2.TXE.txt,BASE.LH-OH2.TXE.txt
+14,qa,qa,qa,,qú-pu-qú-tìʔ,41,BASE.LH-QAU.TXE,lex.LH-QAU.TXE.txt,BASE.LH-QAU.TXE.txt
+15,qo,qo,qo,,qɛ̀ʔ-qō,33,BASE.LH-QOEH.TXE,lex.LH-QOEH.TXE.txt,BASE.LH-QOEH.TXE.txt
+16,qɔ,qɔ,qɔ,,qɔ̀ʔ-nɛ̀ʔ,30,BASE.LH-QOH.TXE,lex.LH-QOH.TXE.txt,BASE.LH-QOH.TXE.txt
+17,qə,qə-lə  ~  qə̂ʔ-lə̂ʔ,qə-lə  ~  qə̂ʔ-lə̂ʔ,,qwɛ̀ʔ  ~  qɔ̀ʔ,16,BASE.LH-QUH.TXE,lex.LH-QUH.TXE.txt,BASE.LH-QUH.TXE.txt
+18,qha,qha,qha,,qha-cî,11,BASE.LH-QHA1.TXE,lex.LH-QHA1.TXE.txt,BASE.LH-QHA1.TXE.txt
+19,qha,qhá  ~  qha,qhá  ~  qha,,qhàʔ,25,BASE.LH-QHA2.TXE,lex.LH-QHA2.TXE.txt,BASE.LH-QHA2.TXE.txt
+20,qhi,qhí-qhí,qhí-qhí,,qhɛ̀ʔ,49,BASE.LH-QHIEH.TXE,lex.LH-QHIEH.TXE.txt,BASE.LH-QHIEH.TXE.txt
+21,qhɔ,qhɔ,qhɔ,,qhɔ̄-tá-pêʔ,22,BASE.LH-QHOH.TXE,lex.LH-QHOH.TXE.txt,BASE.LH-QHOH.TXE.txt
+22,qhɔ,qhɔ̂ʔ,qhɔ̂ʔ,,qhwɛ  ~  qhɔ,27,BASE.LH-QHOHQ.TXE,lex.LH-QHOHQ.TXE.txt,BASE.LH-QHOHQ.TXE.txt
+23,ka,ka(n),ka(n),,kàʔ,63,BASE.LH-KA.TXE,lex.LH-KA.TXE.txt,BASE.LH-KA.TXE.txt
+24,ki,ki-kɛ̂ʔ,ki-kɛ̂ʔ,,kòʔ,55,BASE.LH-KIUEO.TXE,lex.LH-KIUEO.TXE.txt,BASE.LH-KIUEO.TXE.txt
+25,kɛ,kɛ,kɛ,,kɔ̀ʔ,54,BASE.LH-KEHOH.TXE,lex.LH-KEHOH.TXE.txt,BASE.LH-KEHOH.TXE.txt
+26,kɨ,kɨ,kɨ,,kru-g̈âʔ,71,BASE.LH-KIHUH.TXE,lex.LH-KIHUH.TXE.txt,BASE.LH-KIHUH.TXE.txt
+27,kha,kha,kha,,khàʔ-làʔ,31,BASE.LH-KHA.TXE,lex.LH-KHA.TXE.txt,BASE.LH-KHA.TXE.txt
+28,khi,khí,khí,,khɛ̀ʔ,39,BASE.LH-KHIEH.TXE,lex.LH-KHIEH.TXE.txt,BASE.LH-KHIEH.TXE.txt
+29,khɔ,khɔ,khɔ,,khɔ̀ʔ-khàʔ,28,BASE.LH-KHOH.TXE,lex.LH-KHOH.TXE.txt,BASE.LH-KHOH.TXE.txt
+30,khɨ,khɨ,khɨ,,khrìʔ  ~  khìʔ,42,BASE.LH-KHIH.TXE,lex.LH-KHIH.TXE.txt,BASE.LH-KHIH.TXE.txt
+31,ga,ga,ga,,gèʔ-e,35,BASE.LH-GAU.TXE,lex.LH-GAU.TXE.txt,BASE.LH-GAU.TXE.txt
+32,go,go,go,,gwɛ̀,49,BASE.LH-GOIH.TXE,lex.LH-GOIH.TXE.txt,BASE.LH-GOIH.TXE.txt
+33,ŋa,ŋá,ŋá,,ŋwɛ̀ʔ-ma,43,BASE.LH-NG.TXE,lex.LH-NG.TXE.txt,BASE.LH-NG.TXE.txt
+34,ca,ca,ca,,câ(n)-lìʔ,26,BASE.LH-CA1.TXE,lex.LH-CA1.TXE.txt,BASE.LH-CA1.TXE.txt
+35,ca,cà,cà,,cā(n),27,BASE.LH-CA2.TXE,lex.LH-CA2.TXE.txt,BASE.LH-CA2.TXE.txt
+36,ca,câʔ,câʔ,,càʔ-tɔ̄,12,BASE.LH-CAQ.TXE,lex.LH-CAQ.TXE.txt,BASE.LH-CAQ.TXE.txt
+37,ci,ci  ~  ce,ci  ~  ce,,cîʔ-cîʔ,31,BASE.LH-CI.TXE,lex.LH-CI.TXE.txt,BASE.LH-CI.TXE.txt
+38,cu,cu  ~  co,cu  ~  co,,cùʔ  ~  cù  ~  cū,34,BASE.LH-CU.TXE,lex.LH-CU.TXE.txt,BASE.LH-CU.TXE.txt
+39,ce,ce,ce,,cèʔ,24,BASE.LH-CE.TXE,lex.LH-CE.TXE.txt,BASE.LH-CE.TXE.txt
+40,co,co  ~  cwe,co  ~  cwe,,cɛ̀ʔ,38,BASE.LH-COEH.TXE,lex.LH-COEH.TXE.txt,BASE.LH-COEH.TXE.txt
+41,cɔ,cɔ,cɔ,,cɔ̀ʔ,38,BASE.LH-COH.TXE,lex.LH-COH.TXE.txt,BASE.LH-COH.TXE.txt
+42,cɨ,,cɨ,(skipped 1 non-syllabic entry to classify),cɨ̄,39,BASE.LH-CIH.TXE,lex.LH-CIH.TXE.txt,BASE.LH-CIH.TXE.txt
+43,cɨ,cɨ̂ʔ,cɨ̂ʔ,,cwɛ̂ʔ  ~  cɔ̂ʔ,34,BASE.LH-CIHQ.TXE,lex.LH-CIHQ.TXE.txt,BASE.LH-CIHQ.TXE.txt
+44,cha,ch-ch,cha,(skipped 1 non-syllabic entry to classify),chìʔ-phûʔ,33,BASE.LH-CHAI.TXE,lex.LH-CHAI.TXE.txt,BASE.LH-CHAI.TXE.txt
+45,chu,chu,chu,,chòʔ-cɨ́-šī,47,BASE.LH-CHUO.TXE,lex.LH-CHUO.TXE.txt,BASE.LH-CHUO.TXE.txt
+46,chɛ,chɛ,chɛ,,chɔ̀ʔ,25,BASE.LH-CHEOH.TXE,lex.LH-CHEOH.TXE.txt,BASE.LH-CHEOH.TXE.txt
+47,chɨ,,chɨ,(skipped 1 non-syllabic entry to classify),chwɛ̄-kàʔ,36,BASE.LH-CHIH.TXE,lex.LH-CHIH.TXE.txt,BASE.LH-CHIH.TXE.txt
+48,ja,ja,ja,,jèʔ,48,BASE.LH-JAIE.TXE,lex.LH-JAIE.TXE.txt,BASE.LH-JAIE.TXE.txt
+49,jo,jo,jo,,jɨɛ̀ʔ-kɛ̂ʔ-ni,48,BASE.LH-JOUH.TXE,lex.LH-JOUH.TXE.txt,BASE.LH-JOUH.TXE.txt
+50,ta,ta,ta,,tā-fâ,51,BASE.LH-TA.TXE,lex.LH-TA.TXE.txt,BASE.LH-TA.TXE.txt
+51,ta,tâʔ,tâʔ,,tàʔ-pa,18,BASE.LH-TAQ.TXE,lex.LH-TAQ.TXE.txt,BASE.LH-TAQ.TXE.txt
+52,ti,ti,ti,,tùʔ-càw,55,BASE.LH-TIU.TXE,lex.LH-TIU.TXE.txt,BASE.LH-TIU.TXE.txt
+53,te,te,te,,te,5,BASE.LH-TE1.TXE,lex.LH-TE1.TXE.txt,BASE.LH-TE1.TXE.txt
+54,te,tê,tê,,tèʔ-chí,6,BASE.LH-TE2.TXE,lex.LH-TE2.TXE.txt,BASE.LH-TE2.TXE.txt
+55,to,to,to,,tɛ̀ʔ  ~  tɛ̀,60,BASE.LH-TOEH.TXE,lex.LH-TOEH.TXE.txt,BASE.LH-TOEH.TXE.txt
+56,tɔ,tɔ(n),tɔ(n),,tɔ̄-làʔ(=qú)  ~  tō-làʔ(-qú,41,BASE.LH-TOH.TXE,lex.LH-TOH.TXE.txt,BASE.LH-TOH.TXE.txt
+57,tɔ,tɔ̂ʔ,tɔ̂ʔ,,twɛ̂ʔ,35,BASE.LH-TOHQ.TXE,lex.LH-TOHQ.TXE.txt,BASE.LH-TOHQ.TXE.txt
+58,tha,tha,tha,,thàʔ  ~  àʔ  ~  hàʔ,25,BASE.LH-THA.TXE,lex.LH-THA.TXE.txt,BASE.LH-THA.TXE.txt
+59,thi,thi,thi,,thèʔ,37,BASE.LH-THIUE.TXE,lex.LH-THIUE.TXE.txt,BASE.LH-THIUE.TXE.txt
+60,tho,tho,tho,,thɛ̀ʔ,30,BASE.LH-THOEH.TXE,lex.LH-THOEH.TXE.txt,BASE.LH-THOEH.TXE.txt
+61,thɔ,thɔ,thɔ,,thwɛ́,51,BASE.LH-THOH.TXE,lex.LH-THOH.TXE.txt,BASE.LH-THOH.TXE.txt
+62,da,dà,dà,,dôʔ,40,BASE.LH-DAIUE.TXE,lex.LH-DAIUE.TXE.txt,BASE.LH-DAIUE.TXE.txt
+63,dɛ,dɛ,dɛ,,dwɛ̂,33,BASE.LH-DEHOH.TXE,lex.LH-DEHOH.TXE.txt,BASE.LH-DEHOH.TXE.txt
+64,na,na,na,,nà  ~  na  ~  nâ  ~  nā  ~  nàʔ,31,BASE.LH-NA1.TXE,lex.LH-NA1.TXE.txt,BASE.LH-NA1.TXE.txt
+65,na,nà  ~  nā,nà  ~  nā,,nālī  ~  nālìʔ,32,BASE.LH-NA2.TXE,lex.LH-NA2.TXE.txt,BASE.LH-NA2.TXE.txt
+66,na,nâʔ,nâʔ,,nàʔ-thɨ́  ~  nàʔ-thə́,16,BASE.LH-NAQ.TXE,lex.LH-NAQ.TXE.txt,BASE.LH-NAQ.TXE.txt
+67,ni,ni,ni,,nîʔ-khô,18,BASE.LH-NI.TXE,lex.LH-NI.TXE.txt,BASE.LH-NI.TXE.txt
+68,nu,nu,nu,,nòʔ-kôʔ,37,BASE.LH-NUEO.TXE,lex.LH-NUEO.TXE.txt,BASE.LH-NUEO.TXE.txt
+69,nɛ,nɛ,nɛ,,nɛ̀ʔ,21,BASE.LH-NEH.TXE,lex.LH-NEH.TXE.txt,BASE.LH-NEH.TXE.txt
+70,nɔ,nɔ,nɔ,,nyòw-cɛ̀,57,BASE.LH-NOUH.TXE,lex.LH-NOUH.TXE.txt,BASE.LH-NOUH.TXE.txt
+71,pa,pa,pa,,pā-lâw,50,BASE.LH-PA.TXE,lex.LH-PA.TXE.txt,BASE.LH-PA.TXE.txt
+72,pa,pâʔ,pâʔ,,pìʔ-pha,58,BASE.LH-PAQPI.TXE,lex.LH-PAQPI.TXE.txt,BASE.LH-PAQPI.TXE.txt
+73,pu,,pu,(skipped 1 non-syllabic entry to classify),pùʔ  ~  pū,44,BASE.LH-PU.TXE,lex.LH-PU.TXE.txt,BASE.LH-PU.TXE.txt
+74,pe,pe,pe,,pòʔ,49,BASE.LH-PEO.TXE,lex.LH-PEO.TXE.txt,BASE.LH-PEO.TXE.txt
+75,pɛ,pɛ,pɛ,,pɛ̀ʔ,42,BASE.LH-PEH.TXE,lex.LH-PEH.TXE.txt,BASE.LH-PEH.TXE.txt
+76,pɔ,pɔ,pɔ,,pɔ̀ʔ  ~  pɔ̂  ~  pɔ̄,38,BASE.LH-POH.TXE,lex.LH-POH.TXE.txt,BASE.LH-POH.TXE.txt
+77,pɨ,pɨ,pɨ,,pyɔ̀  ~  pyɔ̄,57,BASE.LH-PIH.TXE,lex.LH-PIH.TXE.txt,BASE.LH-PIH.TXE.txt
+78,pha,pha,pha,,phîʔ-ɛ̀-phu-ɛ̀,54,BASE.LH-PHAI.TXE,lex.LH-PHAI.TXE.txt,BASE.LH-PHAI.TXE.txt
+79,phu,,phu  ~  pho,(skipped 1 non-syllabic entry to classify),phùʔ ɛ̀,31,BASE.LH-PHU.TXE,lex.LH-PHU.TXE.txt,BASE.LH-PHU.TXE.txt
+80,phe,phe,phe,,phɛ̀ʔ-qhɔ̂  ~  phɛ̀ʔ-qhwɛ̂,46,BASE.LH-PHEOE.TXE,lex.LH-PHEOE.TXE.txt,BASE.LH-PHEOE.TXE.txt
+81,phɔ,phɔ,phɔ,,phɨ̂-tû,31,BASE.LH-PHOIH.TXE,lex.LH-PHOIH.TXE.txt,BASE.LH-PHOIH.TXE.txt
+82,phə,phə-lɔ̂,phə-lɔ̂,,phyú  ~  phyó,26,BASE.LH-PHUH.TXE,lex.LH-PHUH.TXE.txt,BASE.LH-PHUH.TXE.txt
+83,ba,ba,ba,,bîʔ  ~  bí,34,BASE.LH-BAI.TXE,lex.LH-BAI.TXE.txt,BASE.LH-BAI.TXE.txt
+84,bu,,bu,(skipped 1 non-syllabic entry to classify),bòʔ-ŋâ,32,BASE.LH-BUEO.TXE,lex.LH-BUEO.TXE.txt,BASE.LH-BUEO.TXE.txt
+85,bɛ,bɛ,bɛ,,bɔ̀ʔ-fây,30,BASE.LH-BEOH.TXE,lex.LH-BEOH.TXE.txt,BASE.LH-BEOH.TXE.txt
+86,bɨ,bɨ,bɨ,,bwɛ̂ʔ,30,BASE.LH-BIH.TXE,lex.LH-BIH.TXE.txt,BASE.LH-BIH.TXE.txt
+87,ma,m.,ma,(skipped 2 non-syllabic entries to classify),mâ,23,BASE.LH-MA1.TXE,lex.LH-MA1.TXE.txt,BASE.LH-MA1.TXE.txt
+88,ma,mâ,mâ,,mā-yī,12,BASE.LH-MA2.TXE,lex.LH-MA2.TXE.txt,BASE.LH-MA2.TXE.txt
+89,ma,mâʔ,mâʔ,,màʔ-cá,22,BASE.LH-MAQ.TXE,lex.LH-MAQ.TXE.txt,BASE.LH-MAQ.TXE.txt
+90,mi,mi,mi,,mìʔnìʔ,23,BASE.LH-MI.TXE,lex.LH-MI.TXE.txt,BASE.LH-MI.TXE.txt
+91,mu,,mu,(skipped 1 non-syllabic entry to classify),mû,12,BASE.LH-MU1.TXE,lex.LH-MU1.TXE.txt,BASE.LH-MU1.TXE.txt
+92,mu,mû,mû,,mòʔ,34,BASE.LH-MU2EO.TXE,lex.LH-MU2EO.TXE.txt,BASE.LH-MU2EO.TXE.txt
+93,mɛ,mɛ,mɛ,,mɛ̄-ší-qwī,45,BASE.LH-MEH.TXE,lex.LH-MEH.TXE.txt,BASE.LH-MEH.TXE.txt
+94,mɛ,mɛ̂ʔ,mɛ̂ʔ,,mɛ̀ʔ-g̈ù,6,BASE.LH-MEHQ.TXE,lex.LH-MEHQ.TXE.txt,BASE.LH-MEHQ.TXE.txt
+95,mɔ,mɔ,mɔ,,mɔ̀ʔ-hòʔ,31,BASE.LH-MOH.TXE,lex.LH-MOH.TXE.txt,BASE.LH-MOH.TXE.txt
+96,mɨ,mɨ,mɨ,,mɨ̀,10,BASE.LH-MIH.TXE,lex.LH-MIH.TXE.txt,BASE.LH-MIH.TXE.txt
+97,mə,mə,mə,,mwɛ́-yɔ  ~  mɔ́-yɔ,40,BASE.LH-MUH.TXE,lex.LH-MUH.TXE.txt,BASE.LH-MUH.TXE.txt
+98,ha,ha,ha,,hân,36,BASE.LH-HA1.TXE,lex.LH-HA1.TXE.txt,BASE.LH-HA1.TXE.txt
+99,ha,hà,hà,,hàʔ-hán,17,BASE.LH-HA2.TXE,lex.LH-HA2.TXE.txt,BASE.LH-HA2.TXE.txt
+100,hi,hí,hí,,hū  ~  fū,30,BASE.LH-HIHU.TXE,lex.LH-HIHU.TXE.txt,BASE.LH-HIHU.TXE.txt
+101,he,he-kwân  ~  hê-kwân,he-kwân  ~  hê-kwân,,hòʔ,43,BASE.LH-HEHO.TXE,lex.LH-HEHO.TXE.txt,BASE.LH-HEHO.TXE.txt
+102,hɛ,hɛ,hɛ,,hɛ̀ʔ-khɛ́(n),34,BASE.LH-HEH.TXE,lex.LH-HEH.TXE.txt,BASE.LH-HEH.TXE.txt
+103,hɔ,hɔ,hɔ,,hɔ̂ʔ,43,BASE.LH-HOH.TXE,lex.LH-HOH.TXE.txt,BASE.LH-HOH.TXE.txt
+104,hɨ,hɨ,hɨ,,hwɛ̂ʔ,48,BASE.LH-HIH.TXE,lex.LH-HIH.TXE.txt,BASE.LH-HIH.TXE.txt
+105,g̈a,g̈a,g̈a,,g̈âʔ,15,BASE.LH-GHA.TXE,lex.LH-GHA.TXE.txt,BASE.LH-GHA.TXE.txt
+106,g̈a,g̈âʔ,g̈âʔ,,g̈àʔ,7,BASE.LH-GHAQ.TXE,lex.LH-GHAQ.TXE.txt,BASE.LH-GHAQ.TXE.txt
+107,g̈u,g̈ú  ~  g̈ɔ́,g̈ú  ~  g̈ɔ́,,g̈ɛ̂-g̈ɛ̂ te ve,18,BASE.LH-GHU.TXE,lex.LH-GHU.TXE.txt,BASE.LH-GHU.TXE.txt
+108,g̈ɔ,g̈ɔ,g̈ɔ,,g̈ɔ̀ʔ  ~  vɔ̀ʔ,29,BASE.LH-GHOH.TXE,lex.LH-GHOH.TXE.txt,BASE.LH-GHOH.TXE.txt
+109,g̈ɨ,g̈ɨ̂,g̈ɨ̂,,g̈wɛ̂  ~  g̈ɔ̂,23,BASE.LH-GHIH.TXE,lex.LH-GHIH.TXE.txt,BASE.LH-GHIH.TXE.txt
+110,ša,š  ~  chuš,ša,(skipped 2 non-syllabic entries to classify),šá lɛ́ jûʔ ve,54,BASE.LH-SHA1.TXE,lex.LH-SHA1.TXE.txt,BASE.LH-SHA1.TXE.txt
+111,ša,šâ,šâ,,šàʔ,35,BASE.LH-SHA2.TXE,lex.LH-SHA2.TXE.txt,BASE.LH-SHA2.TXE.txt
+112,ši,ši,ši,,šîʔ-háy,37,BASE.LH-SHI.TXE,lex.LH-SHI.TXE.txt,BASE.LH-SHI.TXE.txt
+113,šu,šu,šu,,šùʔ-šàʔ  ~  šòʔ-šàʔ,22,BASE.LH-SHU.TXE,lex.LH-SHU.TXE.txt,BASE.LH-SHU.TXE.txt
+114,še,še,še,,šêʔ-nè,25,BASE.LH-SHE.TXE,lex.LH-SHE.TXE.txt,BASE.LH-SHE.TXE.txt
+115,šo,šo,šo,,šòʔ-šàʔ  ~  šùʔ-šàʔ,20,BASE.LH-SHO.TXE,lex.LH-SHO.TXE.txt,BASE.LH-SHO.TXE.txt
+116,šɛ,šɛ,šɛ,,šɛ̂ʔ  ~  šîʔ,37,BASE.LH-SHEH.TXE,lex.LH-SHEH.TXE.txt,BASE.LH-SHEH.TXE.txt
+117,šɔ,šɔ,šɔ,,šɔ̀ʔ,33,BASE.LH-SHOH.TXE,lex.LH-SHOH.TXE.txt,BASE.LH-SHOH.TXE.txt
+118,šɨ,šɨ,šɨ,,šɨ̄-šɨ̄,34,BASE.LH-SHIH.TXE,lex.LH-SHIH.TXE.txt,BASE.LH-SHIH.TXE.txt
+119,šɨ,šɨ̂ʔ,šɨ̂ʔ,,šwɛ̀,31,BASE.LH-SHIHQ.TXE,lex.LH-SHIHQ.TXE.txt,BASE.LH-SHIHQ.TXE.txt
+120,ya,ya,ya,,yā-mí=tɔ̄,23,BASE.LH-YA.TXE,lex.LH-YA.TXE.txt,BASE.LH-YA.TXE.txt
+121,ya,yâʔ,yâʔ,,yàʔ-yí(=šī),35,BASE.LH-YAQ.TXE,lex.LH-YAQ.TXE.txt,BASE.LH-YAQ.TXE.txt
+122,yi,,yí(n),(skipped 1 non-syllabic entry to classify),yòʔ-qō  ~  yò-qō,49,BASE.LH-YI.TXE,lex.LH-YI.TXE.txt,BASE.LH-YI.TXE.txt
+123,yɛ,,yɛ ɛ̀,(skipped 1 non-syllabic entry to classify),yɛ̀ʔ,12,BASE.LH-YEH.TXE,lex.LH-YEH.TXE.txt,BASE.LH-YEH.TXE.txt
+124,yɔ,yɔ,yɔ,,ywɛ̂,52,BASE.LH-YOH.TXE,lex.LH-YOH.TXE.txt,BASE.LH-YOH.TXE.txt
+125,fa,fa,fa,,fwɛ́-šī  ~  hwɛ́-šī,52,BASE.LH-F.TXE,lex.LH-F.TXE.txt,BASE.LH-F.TXE.txt
+126,va,va,va,,vîʔthayûʔ,29,BASE.LH-VA.TXE,lex.LH-VA.TXE.txt,BASE.LH-VA.TXE.txt
+127,ve,ve,ve,,vàw,43,BASE.LH-VE.TXE,lex.LH-VE.TXE.txt,BASE.LH-VE.TXE.txt
+128,la,la,la,,lā-šɔ̄=phu,39,BASE.LH-LA.TXE,lex.LH-LA.TXE.txt,BASE.LH-LA.TXE.txt
+129,la,lâʔ,lâʔ,,làʔ-lɔ̂  ~  lâʔ-lɔ ,18,BASE.LH-LAQ.TXE,lex.LH-LAQ.TXE.txt,BASE.LH-LAQ.TXE.txt
+130,li,li  ~  lí,li  ~  lí,,lìʔ-fây  ~  li-fây,18,BASE.LH-LI.TXE,lex.LH-LI.TXE.txt,BASE.LH-LI.TXE.txt
+131,lu,lu,lu,,lèʔ-pɛ̄,37,BASE.LH-LU.TXE,lex.LH-LU.TXE.txt,BASE.LH-LU.TXE.txt
+132,lo,lo,lo,,lòʔ-pē,37,BASE.LH-LO.TXE,lex.LH-LO.TXE.txt,BASE.LH-LO.TXE.txt
+133,lɛ,lɛ,lɛ,,lɛ̀ʔ-yɔ̄  ~  lɛ̀ʔ-ywɛ̄,47,BASE.LH-LEH.TXE,lex.LH-LEH.TXE.txt,BASE.LH-LEH.TXE.txt
+134,lɔ,lɔ,lɔ,,lɔ̀ʔ-qɔ́,56,BASE.LH-LOH.TXE,lex.LH-LOH.TXE.txt,BASE.LH-LOH.TXE.txt
+135,lə,lə,lə,,lwɛ̀ʔ,31,BASE.LH-LUH.TXE,lex.LH-LUH.TXE.txt,BASE.LH-LUH.TXE.txt

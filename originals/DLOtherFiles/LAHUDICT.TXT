@@ -1,0 +1,89 @@
+                     LAHU-ENGLISH DICTIONARY                             
+
+
+FROM HERE ON we are computerized.  October 8, l983, 4:00 P.M.
+
+
+                                Y
+
+buô  firsô wå havå tï thinë uğ computer-printablå equivalentó foò 
+alì  thå  numerouó  diacriticó requireä  bù  ouò  orthography»  á 
+dauntinç  buô bù nï meanó insurmountablå task¬  aó wå shalì  sooî 
+see
+
+followinç thå Cartesiaî maxií tï 'partiò dõ pluó simple'¬  leô uó 
+start with consonantal symbols:
+
+                        p   t   c   k   q
+                        ph  th  ch  kh  qh
+
+                          b   d   j   g
+                           m   n   ng
+                         f   sh       h
+                         v   y        g'
+g'= voiced velar          l
+    fricative             
+
+                             VOWELS
+
+                          i     +     u
+
+                          e     @     o
+
+                          E     a     O
+
++   means 'barred-i' high central vowel
+
+@   means 'shwa'     mid central vowel
+
+E   means 'epsilon' or 'open e'   low front vowel
+
+O   means 'open o' or 'turned c'  low back vowel
+
+                              TONES
+
+No÷ we'rå iî trouble®   Wå neeä siø tonå marks¬ sincå we'lì leavå 
+mid-tone unmarked.
+                  ORTHOGRAPHY         COMPUTERESE
+MID TONE   33     unmarked            unmarked
+
+HIGH RISING 35    acute               ~ after vowel
+
+                         Exs: ti~  only, ni~ press
+HIGH FALLING      circumflex          ^ after vowel
+                              ma^  'not'
+LOW FALLING       grave               ` after vowelŠ                              a'-ta` 'stick'
+LOW LEVEL         macron              = after vowel
+
+HIGH STOPPED      circumflex plus     g'a^?
+                  glottal stop
+LOW STOPPED       grave plus g.s.     pa`?
+
+                       SYLLABLE BOUNDARIES
+
+hyphen     boundary between syllables in a compound   v`a?-sha=
+
+colon      at place of first cut in a second-order compound
+                 va`?-sha=:O`-c+^
+
+double colon   at place of first cut in a third-order compound
+                ya-fi=:shO=::tu`
+
+
+
+             Systematic substitutions for printing:
+
+for ~after vowel substitute ^H'    a'
+
+for ^after vowel substitute ^H^    a^
+
+for `after vowel substitute ^H`    a` 
+
+for =after vowel substitute ^H^T-^T  a-
+
+high stoppeä  anä lo÷ stoppeä shoulä bå takeî carå oæ aô samå timå 
+as high falling and low falling.
+
+
+
+

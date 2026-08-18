@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  lahu-tei-lex0.xml
+  Annotated TEI Lex-0 template for "The Dictionary of Lahu" (J. A. Matisoff, 1988).
+
+  This file serves two purposes:
+    1. A TEI header skeleton (the same one src/lahu-to-tei.xsl emits at the
+       top of tei/lahu.xml).
+    2. An annotated reference for the entry structure produced by the
+       transducer -- i.e. what our ad hoc Lexware band tags become in TEI.
+
+  Encoding standard: TEI Lex-0 -- https://lex-0.org/entries.html
+
+  Unlike the Jäschke Tibetan dictionary project (a different digitization
+  in this same workspace, which this pipeline's approach -- and some of
+  its rendering code -- is adapted from), there is no OCR/vision-LLM stage
+  here: the source is already band-tagged XML (tei/lahu.xml is produced
+  purely by an XSLT transform of master-lexware.xml, itself produced by
+  src/lex2xml.py from src/dl_convert.py's Lexware output). See README-tei.md
+  for the full mapping table and rendering instructions.
+-->
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+
+  <!-- ============================================================
+       TEI HEADER (same content src/lahu-to-tei.xsl emits)
+       ============================================================ -->
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>The Dictionary of Lahu</title>
+        <author>
+          <persName>
+            <forename>James A.</forename>
+            <surname>Matisoff</surname>
+          </persName>
+        </author>
+        <respStmt>
+          <resp>TEI Lex-0 transduction from Lexware</resp>
+          <orgName><!-- your project name here --></orgName>
+        </respStmt>
+      </titleStmt>
+      <editionStmt>
+        <edition>TEI Lex-0 digital edition, transduced from a Lexware
+          (Shoebox/MDF-style) database reconstructed from the original
+          1988 WordStar/CP-M source files.</edition>
+      </editionStmt>
+      <publicationStmt>
+        <authority><!-- your institution or project --></authority>
+        <date><!-- year --></date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Reconstructed from the salvaged WordStar source files of
+          "The Dictionary of Lahu" (University of California Press, 1988)
+          via src/dl_convert.py (WordStar -&gt; Unicode + Lexware) and
+          src/lex2xml.py (Lexware -&gt; ad hoc XML), then transduced to
+          TEI Lex-0 by src/lahu-to-tei.xsl. See ../README.md for the full
+          pipeline.</p>
+      </sourceDesc>
+    </fileDesc>
+
+    <encodingDesc>
+      <editorialDecl>
+        <p>Each Lexware "band" tag becomes a TEI element or attribute as
+          follows (see README-tei.md for the full worked mapping and
+          rationale):</p>
+        <p>hw / (sub)hw -&gt; form/orth (xml:lang="lhu"); pos -&gt;
+          gramGrp/gram[@type='pos']; ld -&gt; usg[@type='etym'] (loanword
+          flag); bz -&gt; usg[@type='label'] (bracketed register/dialect/
+          cross-reference annotations such as [RL], [poetic], [q.v.]môi,
+          bracket stripped); gl not preceded by an ex sibling -&gt;
+          sense/def (with sense/@n split out when the gloss begins with a
+          short numeric or single-letter marker, e.g. "2. " or "b. ");
+          gl immediately preceded by an ex sibling -&gt; that example's
+          translation (cit[@type='translation']/quote); ex -&gt;
+          cit[@type='example']/quote (xml:lang="lhu"); no -&gt; note;
+          sub-entries (Lexware "sub") -&gt; re; err / xx / srcxcrN
+          (pipeline diagnostics and raw fallback content -- see
+          README-lex2xml.md) -&gt; note[@type='editorial'], suppressed by
+          default in the rendering stylesheets.</p>
+        <p>Sense numbering: only the FIRST run of definitional gl bands
+          (before the first example) is treated as a set of senses;
+          any numeric/letter prefix embedded in that gloss text (Matisoff's
+          own "1. ", "2. ", "a. ", "b. " convention) is split out into
+          sense/@n. This is a best-effort heuristic (see README-tei.md);
+          when it doesn't match, the gloss is kept as a single unnumbered
+          sense rather than guessed at.</p>
+      </editorialDecl>
+
+      <tagsDecl>
+        <namespace name="http://www.tei-c.org/ns/1.0">
+          <tagUsage gi="entry">One per top-level Lahu headword.</tagUsage>
+          <tagUsage gi="re">One per Lexware sub-headword ("..hw").</tagUsage>
+          <tagUsage gi="form">Headword form. type=lemma for the main entry;
+            type=compound for a sub-entry.</tagUsage>
+          <tagUsage gi="orth">Orthographic form, xml:lang=lhu (Lahu, in
+            Matisoff's romanization with tone diacritics).</tagUsage>
+          <tagUsage gi="gramGrp">Grammatical information block.</tagUsage>
+          <tagUsage gi="gram">Part of speech (Lexware "pos" band).</tagUsage>
+          <tagUsage gi="usg">Usage note. type=etym for the loanword flag
+            (Lexware "ld"); type=label for bracketed register/dialect/
+            cross-reference annotations (Lexware "bz").</tagUsage>
+          <tagUsage gi="sense">One sense. n= for an explicitly numbered
+            sense (see editorialDecl above).</tagUsage>
+          <tagUsage gi="def">English definition (Lexware "gl").</tagUsage>
+          <tagUsage gi="cit">type=example wraps a Lahu example sentence
+            and, when present, its translation (type=translation).</tagUsage>
+          <tagUsage gi="quote">The quoted text within a cit.</tagUsage>
+          <tagUsage gi="note">Lexicographic note (Lexware "no"), or, when
+            type=editorial, a pipeline diagnostic (Lexware "err"/"xx"/
+            "srcxcrN") shown only when rendering with
+            show-editorial-notes=1.</tagUsage>
+        </namespace>
+      </tagsDecl>
+    </encodingDesc>
+
+    <profileDesc>
+      <langUsage>
+        <language ident="lhu">Lahu (Matisoff's romanization)</language>
+        <language ident="en">English</language>
+      </langUsage>
+    </profileDesc>
+  </teiHeader>
+
+
+  <!-- ============================================================
+       ANNOTATED ENTRY STRUCTURE -- reference examples
+       These are illustrative, hand-written templates matching real
+       entries in the dictionary; the actual tei/lahu.xml is produced
+       entirely by src/lahu-to-tei.xsl from master-lexware.xml.
+       ============================================================ -->
+  <text>
+    <body>
+      <div type="dictionary" xml:lang="lhu">
+
+        <!-- SIMPLE ENTRY, one sense, one example+translation -->
+        <entry xml:id="Lahu.2" xml:lang="lhu">
+          <form type="lemma">
+            <orth xml:lang="lhu">a</orth>
+          </form>
+          <gramGrp><gram type="pos">V</gram></gramGrp>
+          <sense>
+            <def>be slanted precariously; be toppling over under its own weight</def>
+          </sense>
+          <cit type="example">
+            <quote xml:lang="lhu">há-pɨ=šī chi tê phā mâ a lɔ -- thê ɛ̀ qay šɔ̄ </quote>
+            <cit type="translation">
+              <quote>This bunch of stones is not at all slanted over -- they're still quite straight.</quote>
+            </cit>
+          </cit>
+          <!-- Sub-entries: Lexware "..hw" becomes a sibling <re> -->
+          <re xml:id="Lahu.2.1">
+            <form type="compound">
+              <orth xml:lang="lhu">a ɛ̀</orth>
+            </form>
+            <gramGrp><gram type="pos">AEstat</gram></gramGrp>
+            <sense>
+              <def>slanted but not supported by anything (as a car going very fast around a corner)</def>
+            </sense>
+          </re>
+        </entry>
+
+        <!-- LOANWORD, with usg[@type=etym] and usg[@type=label] -->
+        <entry xml:id="Lahu.3" xml:lang="lhu">
+          <form type="lemma">
+            <orth xml:lang="lhu">a(n)</orth>
+          </form>
+          <gramGrp><gram type="pos">Mpfx</gram></gramGrp>
+          <usg type="etym">LOAN</usg>
+          <sense>
+            <def>saddle</def>
+          </sense>
+          <note>&lt; Tai (cf. TN ʔaan¹) &lt; Chin. (cf. Mand. ān); cf. ɔ̀-a(n) (N)</note>
+        </entry>
+
+        <!-- MULTIPLE NUMBERED SENSES (sense/@n split from the gloss text) -->
+        <entry xml:id="Lahu.example-multisense" xml:lang="lhu">
+          <form type="lemma">
+            <orth xml:lang="lhu">chɛ</orth>
+          </form>
+          <sense n="1">
+            <def>if one sets one's mind to V'ing; if one really goes and V's</def>
+          </sense>
+          <sense n="2">
+            <def>[vivid temporal or circumstantial clause-marker] if V actually turns out to be the case; when V happens</def>
+          </sense>
+        </entry>
+
+      </div>
+    </body>
+  </text>
+
+</TEI>

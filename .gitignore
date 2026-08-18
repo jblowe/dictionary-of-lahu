@@ -1,0 +1,32 @@
+# All intermediate and final pipeline output. Nothing here is hand-authored;
+# everything is reproducible from originals/ by running the scripts in src/
+# (see README.md and README-tei.md for the exact commands). Regenerate
+# rather than restoring from history.
+/generated/
+
+# LaTeX/XeLaTeX intermediate files, in case any ever land outside generated/
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Stray pipeline logs, in case any ever land outside generated/
+conversion-report.log
+lex2xml-report.log
+LOG.*.txt
+
+# Throwaway audit artifact from src/build_tables.py (not used by the
+# pipeline; regenerate with `python3 src/build_tables.py` if needed)
+src/merged_table.py
+
+# OS / editor junk
+.DS_Store
+.~lock.*#
+*.swp
+
+# Python bytecode cache
+__pycache__/
+*.pyc
