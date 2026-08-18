@@ -26,6 +26,7 @@ src/merged_table.py
 .DS_Store
 .~lock.*#
 *.swp
+.idea/
 
 # Python bytecode cache
 __pycache__/
