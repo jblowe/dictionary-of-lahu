@@ -421,6 +421,7 @@ BAND_GL = 'gl'
 BAND_EX = 'ex'
 BAND_XX = 'xx'
 BAND_ERR = 'err'
+BAND_DIVIDER = 'divider'
 
 
 class LexEntry:
@@ -585,6 +586,17 @@ def parse_base_file_to_lexware(path: str, warnings: Counter):
 
         rec = line  # preserved original (marker-bearing) line, for xx/log output
         plain_for_log = re.sub(r'[\x11\x12\x14\x17]', '', rec)
+
+        # "PUT x HERE" letter-divider markers (the divider letter is wrapped
+        # in altfont escapes even in the raw source, so it only becomes
+        # plain text here, after those escapes have been stripped above).
+        # Checked first/highest-priority so it can never fall through to
+        # the xx/err "unknown line" classification below.
+        m_divider = re.match(r'^\s*PUT (.+?) HERE\s*$', plain_for_log)
+        if m_divider:
+            note_purge()
+            out.append(BAND_DIVIDER + '\t' + m_divider.group(1))
+            continue
 
         # ================= line classification =================
 

@@ -3,7 +3,10 @@
 # Lexware conversion, collation ordering, concatenation, Lexware -> XML,
 # XML -> TEI Lex-0, and TEI -> HTML/LaTeX/PDF. Regenerates every file
 # under generated/ from what's in originals/ and src/ (see README.md's
-# "Directory layout" section).
+# "Directory layout" section). The final PDF step compiles the
+# hand-authored src/latex/lahu-master.tex (title page, table of
+# contents, preamble), which \input's the generated dictionary body
+# (generated/latex/lahu.tex) -- not that body file directly.
 #
 # See README.md for the pipeline diagram and what each stage produces;
 # see README-tei.md for the TEI/HTML/PDF stages specifically, including
@@ -44,12 +47,12 @@ python3 src/render_tei.py --tei generated/lahudico-lexware.xml --xsl src/lahu-to
 echo "=== [6/8] lahu-html.xsl: TEI -> HTML ==="
 python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-html.xsl --out generated/latex/lahu.html
 
-echo "=== [7/8] lahu-latex.xsl: TEI -> LaTeX ==="
+echo "=== [7/8] lahu-latex.xsl: TEI -> LaTeX (dictionary body only) ==="
 python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-latex.xsl --out generated/latex/lahu.tex
 
-echo "=== [8/8] xelatex: LaTeX -> PDF (two passes, for page refs) ==="
-xelatex -interaction nonstopmode -output-directory=generated/latex generated/latex/lahu.tex
-xelatex -interaction nonstopmode -output-directory=generated/latex generated/latex/lahu.tex
+echo "=== [8/8] xelatex: src/latex/lahu-master.tex -> PDF (two passes, for TOC/page refs) ==="
+xelatex -interaction nonstopmode -output-directory=generated/latex -jobname=lahu src/latex/lahu-master.tex
+xelatex -interaction nonstopmode -output-directory=generated/latex -jobname=lahu src/latex/lahu-master.tex
 
 echo
 echo "Done. See generated/latex/lahu.pdf and generated/latex/lahu.html."

@@ -1,0 +1,69 @@
+%% toc.tex -- table of contents for The Dictionary of Lahu.
+%% \input from src/latex/lahu-master.tex, after the title page and
+%% before the dictionary body.
+%%
+%% This is a hand-built list, not a \tableofcontents. \dividerletter
+%% (see lahu-master.tex) drops a \label{div:X} at each of the 33
+%% letter-section breaks; each \tocline{X} below looks that label up
+%% with \pageref. The 33 letters and their order are the collation
+%% sequence itself (see the footer in lahu-master.tex, reconstructed
+%% from the HEADER file in the originals) -- fixed and known in
+%% advance, so there's nothing generated to keep in sync here.
+%%
+%% \tableofcontents + \addcontentsline was tried first and rejected:
+%% with all 33 dividers present, \addcontentsline corrupted one page
+%% of the compiled PDF (a genuine hyperref/multicol interaction bug
+%% with anchors dropped right at a multicols close/reopen boundary
+%% inside a large multicols block) -- reproduced, confirmed by
+%% removing it, and documented in lahu-master.tex's \dividerletter
+%% comment and README-tei.md. Plain \label/\pageref doesn't hit it.
+%%
+%% Needs a second XeLaTeX pass (see lahu-master.tex's compile command)
+%% for page numbers to be correct, same as any LaTeX cross-reference.
+
+\newcommand{\tocline}[1]{\noindent #1\dotfill\pageref{div:#1}\par}
+
+\thispagestyle{empty}
+\begin{center}
+{\Large\bfseries Contents}
+\end{center}
+\vspace{1.5em}
+
+\begin{multicols}{2}
+\raggedright
+\tocline{a}
+\tocline{i}
+\tocline{u}
+\tocline{e}
+\tocline{o}
+\tocline{ɛ}
+\tocline{ɔ}
+\tocline{ɨ}
+\tocline{ə}
+\tocline{q}
+\tocline{qh}
+\tocline{k}
+\tocline{kh}
+\tocline{g}
+\tocline{ŋ}
+\tocline{c}
+\tocline{ch}
+\tocline{j}
+\tocline{t}
+\tocline{th}
+\tocline{d}
+\tocline{n}
+\tocline{p}
+\tocline{ph}
+\tocline{b}
+\tocline{m}
+\tocline{h}
+\tocline{g̈}
+\tocline{š}
+\tocline{y}
+\tocline{f}
+\tocline{v}
+\tocline{l}
+\end{multicols}
+
+\clearpage

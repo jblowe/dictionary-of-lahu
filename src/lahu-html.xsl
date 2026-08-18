@@ -202,6 +202,40 @@ body {
 .sub-entry > .note, .sub-entry > .example { margin-top: 0.15em; }
 .sub-entry .hw { font-weight: bold; font-style: normal; font-size: calc(1.05em - 2pt); }
 
+/* Letter divider ("PUT x HERE" in the original typesetting instructions):
+   a full-width ornamental break announcing a new letter-section.
+   column-span: all pulls it out of whichever column it happens to fall
+   in -- even nested inside .entry/.sub-entry, since it's still an
+   in-flow block-level descendant of .dictionary -- and splits the two
+   columns at that point. */
+.letter-divider {
+  column-span: all;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 1.6rem 0 1.2rem;
+  padding-left: 0;
+  text-indent: 0;
+  break-inside: avoid;
+}
+.letter-divider::before,
+.letter-divider::after {
+  content: '';
+  flex: 1 1 auto;
+  height: 1px;
+  background: #bba;
+}
+.letter-divider .divider-letter {
+  flex: 0 0 auto;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: #6b5636;
+  padding: 0 0.2em;
+}
+
 /* Editorial notes (pipeline artifacts, shown only in review mode) */
 .editorial-note {
   display: block;
@@ -254,6 +288,7 @@ body {
       </xsl:if>
       <xsl:apply-templates select="tei:cit[@type='example']"/>
       <xsl:apply-templates select="tei:re"/>
+      <xsl:apply-templates select="tei:milestone"/>
     </div>
   </xsl:template>
 
@@ -330,6 +365,17 @@ body {
         <xsl:apply-templates select="tei:note[@type='editorial']"/>
       </xsl:if>
       <xsl:apply-templates select="tei:cit[@type='example']"/>
+      <xsl:apply-templates select="tei:milestone"/>
+    </div>
+  </xsl:template>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       LETTER DIVIDER
+       ══════════════════════════════════════════════════════════════════════ -->
+  <xsl:template match="tei:milestone[@unit='letter']">
+    <div class="letter-divider">
+      <span class="divider-letter"><xsl:value-of select="@n"/></span>
     </div>
   </xsl:template>
 

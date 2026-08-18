@@ -1,0 +1,244 @@
+%% lahu-master.tex
+%% Hand-authored scaffold for The Dictionary of Lahu, TEI Lex-0 digital
+%% edition. Owns everything the generated dictionary body needs but
+%% doesn't itself contain: documentclass/packages, page geometry, the
+%% body font, the entry-formatting macros (\headword, \dividerletter,
+%% etc.), the running footer, the title page, and the table of
+%% contents. The dictionary body itself -- generated/latex/lahu.tex,
+%% produced from generated/tei/lahu.xml by src/lahu-latex.xsl -- is
+%% \input below, inside a multicols block this file opens and closes.
+%%
+%% Compile this file (not generated/latex/lahu.tex) with XeLaTeX,
+%% always from the project root so the \input paths below resolve;
+%% see README.md / README-tei.md for the exact command, or just run
+%% src/regenerate-all-files.sh which does this for you:
+%%
+%%   xelatex -interaction nonstopmode -output-directory=generated/latex \
+%%     -jobname=lahu src/latex/lahu-master.tex
+%%   xelatex -interaction nonstopmode -output-directory=generated/latex \
+%%     -jobname=lahu src/latex/lahu-master.tex     (again, for TOC/page refs)
+%%
+%% -jobname=lahu keeps the output named generated/latex/lahu.pdf (etc.)
+%% rather than lahu-master.pdf, matching the pre-scaffold layout.
+%%
+%% Front/back matter: this file is the place to add it. \input a new
+%% .tex file here (before the dictionary body for front matter, after
+%% it for back matter) the same way title.tex and toc.tex are below.
+
+\documentclass[10pt,twoside]{article}
+
+%% Packages
+\usepackage{fontspec}
+\usepackage{multicol}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+
+%% Page geometry
+\geometry{
+  a4paper,
+  top=2cm, bottom=2.5cm,
+  inner=2cm, outer=1.5cm,
+  headsep=0.5cm
+}
+
+%% Body font. Chosen for broad Unicode coverage of IPA Extensions and
+%% combining diacritical marks (Lahu's tone marks are combining accents
+%% over vowels and consonants, e.g. g with combining diaeresis for g̈),
+%% and because it ships with most complete TeX Live installations. If
+%% XeLaTeX reports this font isn't found, either install DejaVu Serif
+%% or change the name below to any Unicode font you have that covers
+%% combining diacritics well, e.g. "Charis SIL" (built specifically for
+%% this kind of linguistic data; see https://software.sil.org/charis/)
+%% or "Doulos SIL".
+\setmainfont{DejaVu Serif}[Ligatures=TeX, Renderer=OpenType]
+
+%% Dictionary entry macros
+%%
+%% Hanging indent, two levels deep, via \leftskip/\hangindent rather
+%% than a fixed \hspace on the first line: an entry's own wrapped lines
+%% indent by \dictindent (the column where sub-entries' headwords
+%% start); a sub-entry's first line starts at \dictindent, and ITS
+%% wrapped lines indent one further \dictindent, to 2*\dictindent. Each
+%% macro below sets \leftskip and \hangindent itself at the start of
+%% its own paragraph, so nothing leaks from one paragraph to the next.
+%%
+%% \headword{Lahu}              -- bold Lahu headword (top level)
+%% \graminfo{text}              -- grammatical information in small italic
+%% \usgetym{text}               -- loanword flag
+%% \usglabel{text}              -- bracketed register/dialect/cross-ref label
+%% \sensenum{n}                 -- sense number
+%% \examplecit{Lahu}{Eng}       -- example + translation (top level; translation
+%%                                  is not quoted, just set off by a quad space;
+%%                                  Lahu text set 2pt smaller than body text;
+%%                                  indented one level deeper than the entry
+%%                                  it appears with, starts at \dictindent,
+%%                                  wraps to 2*\dictindent, same as \notetext)
+%% \notetext{text}              -- lexicographic note (top level), rendered
+%%                                  "/ text /", indented one level deeper than
+%%                                  the entry it annotates (starts at
+%%                                  \dictindent, wraps to 2*\dictindent)
+%% \subentry{Lahu}{content}     -- sub-entry headword (bold, 2pt smaller than
+%%                                  \headword) + gram + senses
+%% \subexamplecit{Lahu}{Eng}    -- example + translation (inside a sub-entry;
+%%                                  Lahu text set 2pt smaller, as \examplecit;
+%%                                  indented one level deeper than the
+%%                                  sub-entry, starts at 2*\dictindent, wraps
+%%                                  to 3*\dictindent, same as \subnotetext)
+%% \subnotetext{text}           -- lexicographic note (inside a sub-entry),
+%%                                  "/ text /", indented one level deeper than
+%%                                  the sub-entry it annotates (starts at
+%%                                  2*\dictindent, wraps to 3*\dictindent)
+%% \editorialnote{text}         -- pipeline diagnostic (gray, review mode only)
+%% \dividerletter{x}            -- letter-divider (from the original "PUT x
+%%                                  HERE" typesetting instructions): closes
+%%                                  the current multicols block, drops a
+%%                                  \label{div:x} for the table of contents
+%%                                  (see toc.tex) to \pageref, sets the
+%%                                  running head (\markright, shown via
+%%                                  \rightmark on odd/recto pages -- see
+%%                                  the header setup below) to this letter,
+%%                                  prints a full-width ornamental
+%%                                  rule/letter/rule, then reopens multicols
+%%                                  with the same
+%%                                  \raggedright/\small/\dictindent state as
+%%                                  the top of the document, since closing
+%%                                  multicols ends the group those were set
+%%                                  in. Safe to invoke from anywhere in the
+%%                                  entry stream (even mid sub-entry) because
+%%                                  the XSLT template that calls it emits it
+%%                                  as a flat run of tokens, never inside an
+%%                                  open brace group.
+%%
+%%                                  IMPORTANT: this uses plain \label, not
+%%                                  \addcontentsline. \addcontentsline here
+%%                                  (tried first) corrupted one page of the
+%%                                  compiled PDF into blank/wrong content
+%%                                  when all 33 dividers were present -- a
+%%                                  real interaction bug between hyperref's
+%%                                  \addcontentsline and multicol's deferred
+%%                                  page-breaking, reproduced and confirmed
+%%                                  by removing it; see README-tei.md. Do
+%%                                  not reintroduce \addcontentsline /
+%%                                  \tableofcontents for this without
+%%                                  re-testing a full 662-page compile.
+%%
+%% Declared here (must be in the preamble); the actual width is set
+%% in \small below, once we're in the font size it will be used in --
+%% "em" is resolved at the point \setlength runs, not dynamically.
+\newlength{\dictindent}
+
+\newcommand{\headword}[1]{%
+  \par\vspace{2pt}%
+  \leftskip=0pt \hangindent=\dictindent \hangafter=1
+  \noindent\textbf{#1}\enspace%
+}
+\newcommand{\graminfo}[1]{%
+  {\small\textit{#1}}\enspace%
+}
+\newcommand{\usgetym}[1]{%
+  {\small\textit{[#1]}}\enspace%
+}
+\newcommand{\usglabel}[1]{%
+  {\small\textit{[#1]}}\enspace%
+}
+\newcommand{\sensenum}[1]{%
+  \textbf{#1.}\enspace%
+}
+\newcommand{\examplecit}[2]{%
+  \par
+  \leftskip=\dictindent \hangindent=\dictindent \hangafter=1
+  \noindent{\fontsize{7pt}{8.4pt}\selectfont\textit{#1}}\quad #2%
+}
+\newcommand{\notetext}[1]{%
+  \par
+  \leftskip=\dictindent \hangindent=\dictindent \hangafter=1
+  \noindent / #1 /%
+}
+\newcommand{\subentry}[2]{%
+  \par\vspace{1pt}%
+  \leftskip=\dictindent \hangindent=\dictindent \hangafter=1
+  \noindent{\fontsize{7pt}{8.4pt}\selectfont\textbf{#1}}\enspace#2%
+}
+\newcommand{\subexamplecit}[2]{%
+  \par
+  \leftskip=2\dictindent \hangindent=\dictindent \hangafter=1
+  \noindent{\fontsize{7pt}{8.4pt}\selectfont\textit{#1}}\quad #2%
+}
+\newcommand{\subnotetext}[1]{%
+  \par
+  \leftskip=2\dictindent \hangindent=\dictindent \hangafter=1
+  \noindent / #1 /%
+}
+\newcommand{\editorialnote}[1]{%
+  \par{\small\color{gray}[Editorial note: #1]}%
+}
+\newcommand{\dividerletter}[1]{%
+  \end{multicols}%
+  \label{div:#1}%
+  \markright{#1}%
+  \begin{center}
+    \rule{0.35\linewidth}{0.4pt}\quad
+    {\fontsize{28pt}{28pt}\selectfont\bfseries\itshape #1}%
+    \quad\rule{0.35\linewidth}{0.4pt}
+  \end{center}
+  \begin{multicols}{2}
+  \raggedright
+  \small
+  \setlength{\dictindent}{1.3em}%
+}
+
+%% Column separator
+\setlength{\columnsep}{1.2em}
+\setlength{\columnseprule}{0.4pt}
+
+%% Hyperref
+\hypersetup{colorlinks=true, linkcolor=black, urlcolor=blue}
+
+%% Running head/footer for body pages. \thispagestyle{empty} (used on
+%% the title page and TOC page) suppresses both there.
+%%
+%% Footer: page number in the outer corner (left on even/verso pages,
+%% right on odd/recto pages, standard twoside book convention), the
+%% Lahu collation sequence (alphabetization order, reconstructed from
+%% the HEADER file in the original WordStar source; see README.md)
+%% centered.
+%%
+%% Header: a stub running head, alternating by page side --
+%% the book title on even/verso (left) pages, the current letter
+%% section on odd/recto (right) pages. The current-section text comes
+%% from \rightmark, which \dividerletter (below) updates via
+%% \markright each time a new letter section starts. NOTE: \markright
+%% inside a multicols block is a known rough edge (multicol's deferred,
+%% per-page output routine doesn't always see mark changes exactly
+%% when you'd expect); this was tested with a full 33-divider, 662-page
+%% compile and came out correct, but if a future edit ever makes
+%% \rightmark look stale or one-section-behind on some pages, that's
+%% the mechanism to suspect first -- see the \dividerletter comment
+%% above and the \addcontentsline bug note there for the related,
+%% worse-behaved thing this project already hit once.
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.2pt}
+\renewcommand{\footrulewidth}{0.2pt}
+\fancyhead[LE]{\slshape The Dictionary of Lahu}
+\fancyhead[RO]{\slshape\rightmark}
+\fancyfoot[LE,RO]{\thepage}
+\fancyfoot[C]{\scriptsize a\ á\ â\ à\ ā\ âʔ\ àʔ\ \textbar\ a\ i\ u\ e\ o\ ɛ\ ɔ\ ɨ\ ə\ \textbar\ q\ qh\ k\ kh\ g\ ŋ\ c\ ch\ j\ t\ th\ d\ n\ p\ ph\ b\ m\ h\ g̈\ š\ y\ f\ v\ l}
+
+\begin{document}
+
+\input{src/latex/title.tex}
+\input{src/latex/toc.tex}
+
+\begin{multicols}{2}
+\raggedright
+\small
+\setlength{\dictindent}{1.3em}
+\input{generated/latex/lahu.tex}
+\end{multicols}
+
+\end{document}

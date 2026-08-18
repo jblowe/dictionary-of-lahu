@@ -6,7 +6,13 @@ Usage (paths relative to the project root):
     python3 src/render_tei.py --tei generated/lahudico-lexware.xml --xsl src/lahu-to-tei.xsl --out generated/tei/lahu.xml
     python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-html.xsl  --out generated/latex/lahu.html
     python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-latex.xsl --out generated/latex/lahu.tex \
-        [--param show-editorial-notes 1] [--param body-font "Charis SIL"]
+        [--param show-editorial-notes 1]
+
+Note: src/lahu-latex.xsl's output is body content only (the dictionary
+entries) -- it is \input from src/latex/lahu-master.tex, which owns the
+document preamble, body font, and other document-level setup. Compile
+lahu-master.tex with XeLaTeX, not this script's --out file directly;
+see README-tei.md.
 
 Generic: works with any XSLT 1.0 stylesheet and any well-formed input,
 not just TEI -- the --tei flag is just named for the common case. Uses

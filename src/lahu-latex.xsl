@@ -5,26 +5,33 @@
 
   Usage: see README-tei.md. Adapted from the Jaschke Tibetan-English
   Dictionary project's xslt/jaschke-latex.xsl (same workspace): same
-  overall approach (a body-font parameter, a two-column layout, a
-  handful of \newcommand entry-formatting macros, XSLT 1.0's
-  substring-based latex-escape helper), simplified because Lahu is a
-  single Latin-based script (no separate Tibetan font machinery needed)
-  and extended for usg, multiple example/translation pairs, and
-  sense/@n numbering.
+  overall approach (a two-column layout, a handful of \newcommand
+  entry-formatting macros, XSLT 1.0's substring-based latex-escape
+  helper), simplified because Lahu is a single Latin-based script (no
+  separate Tibetan font machinery needed) and extended for usg,
+  multiple example/translation pairs, sense/@n numbering, and letter
+  dividers.
 
-  Requires XeLaTeX (not pdfLaTeX) for Unicode support.
-  Default body font: DejaVu Serif, chosen for broad Unicode coverage of
-  IPA Extensions and combining diacritical marks (Lahu's tone marks are
-  combining accents over vowels and consonants, e.g. g with combining
-  diaeresis for g̈), and because it ships with most complete TeX Live
-  installations (so it should already be available via fontspec without
-  a separate download on most systems, including a standard MacTeX
-  install). If XeLaTeX reports the font isn't found, either install
-  DejaVu Serif, or override the body-font stylesheet parameter at
-  render time (see README-tei.md) with any Unicode font you have that
-  covers combining diacritics well, e.g. "Charis SIL" (a font built
-  specifically for this kind of linguistic data; see
-  https://software.sil.org/charis/) or "Doulos SIL".
+  IMPORTANT: this stylesheet emits BODY CONTENT ONLY (the dictionary
+  entries), not a compilable document by itself. The surrounding
+  document (documentclass, packages, fonts, the entry-formatting
+  macros this content calls, title page, table of contents, and the
+  multicols wrapper this content is \input into) lives in
+  src/latex/lahu-master.tex, a hand-authored scaffold. Compile that
+  file with XeLaTeX, not the output of this stylesheet directly; see
+  README-tei.md. This split exists so the title page / TOC / front-
+  and-back matter can be edited by hand without touching generated
+  output, and so this file's own output is just data, safe to
+  regenerate at any time.
+
+  Requires XeLaTeX (not pdfLaTeX) for Unicode support. Body font
+  (DejaVu Serif, chosen for broad Unicode coverage of IPA Extensions
+  and combining diacritical marks; Lahu's tone marks are combining
+  accents over vowels and consonants, e.g. g with combining diaeresis
+  for g̈, and because it ships with most complete TeX Live
+  installations) is set via \setmainfont in lahu-master.tex, not here;
+  see that file to change it, e.g. to "Charis SIL" or "Doulos SIL" if
+  DejaVu Serif isn't available.
 -->
 <xsl:stylesheet
   version="1.0"
@@ -36,156 +43,28 @@
   <xsl:output method="text" encoding="UTF-8"/>
 
   <!-- Parameters -->
-  <xsl:param name="body-font">DejaVu Serif</xsl:param>
   <!-- Set to 1 to include editorial notes from the pipeline; 0 to suppress -->
   <xsl:param name="show-editorial-notes">0</xsl:param>
 
 
   <!-- ══════════════════════════════════════════════════════════════════════
-       ROOT: emit the full LaTeX document
+       ROOT: emit body content only; see src/latex/lahu-master.tex for
+       the rest of the document. Not indented/wrapped in its own
+       multicols: the master file opens multicols before \input-ing
+       this file's output and closes it after.
        ══════════════════════════════════════════════════════════════════════ -->
   <xsl:template match="/">
-    <xsl:text>\documentclass[10pt,twoside]{article}
-
-%% Packages
-\usepackage{fontspec}
-\usepackage{multicol}
-\usepackage{geometry}
-\usepackage{microtype}
-\usepackage{xcolor}
-\usepackage{hyperref}
-\usepackage{enumitem}
-
-%% Page geometry
-\geometry{
-  a4paper,
-  top=2cm, bottom=2.5cm,
-  inner=2cm, outer=1.5cm,
-  headsep=0.5cm
-}
-
-%% Font
-\setmainfont{</xsl:text>
-    <xsl:value-of select="$body-font"/>
-    <xsl:text>}[Ligatures=TeX, Renderer=OpenType]
-
-%% Dictionary entry macros
-%%
-%% Hanging indent, two levels deep, via \leftskip/\hangindent rather
-%% than a fixed \hspace on the first line: an entry's own wrapped lines
-%% indent by \dictindent (the column where sub-entries' headwords
-%% start); a sub-entry's first line starts at \dictindent, and ITS
-%% wrapped lines indent one further \dictindent, to 2*\dictindent. Each
-%% macro below sets \leftskip and \hangindent itself at the start of
-%% its own paragraph, so nothing leaks from one paragraph to the next.
-%%
-%% \headword{Lahu}              -- bold Lahu headword (top level)
-%% \graminfo{text}              -- grammatical information in small italic
-%% \usgetym{text}               -- loanword flag
-%% \usglabel{text}              -- bracketed register/dialect/cross-ref label
-%% \sensenum{n}                 -- sense number
-%% \examplecit{Lahu}{Eng}       -- example + translation (top level; translation
-%%                                  is not quoted, just set off by a quad space;
-%%                                  Lahu text set 2pt smaller than body text;
-%%                                  indented one level deeper than the entry
-%%                                  it appears with, starts at \dictindent,
-%%                                  wraps to 2*\dictindent, same as \notetext)
-%% \notetext{text}              -- lexicographic note (top level), rendered
-%%                                  "/ text /", indented one level deeper than
-%%                                  the entry it annotates (starts at
-%%                                  \dictindent, wraps to 2*\dictindent)
-%% \subentry{Lahu}{content}     -- sub-entry headword (bold, 2pt smaller than
-%%                                  \headword) + gram + senses
-%% \subexamplecit{Lahu}{Eng}    -- example + translation (inside a sub-entry;
-%%                                  Lahu text set 2pt smaller, as \examplecit;
-%%                                  indented one level deeper than the
-%%                                  sub-entry, starts at 2*\dictindent, wraps
-%%                                  to 3*\dictindent, same as \subnotetext)
-%% \subnotetext{text}           -- lexicographic note (inside a sub-entry),
-%%                                  "/ text /", indented one level deeper than
-%%                                  the sub-entry it annotates (starts at
-%%                                  2*\dictindent, wraps to 3*\dictindent)
-%% \editorialnote{text}         -- pipeline diagnostic (gray, review mode only)
-%%
-%% Declared here (must be in the preamble); the actual width is set
-%% in \small below, once we're in the font size it will be used in --
-%% "em" is resolved at the point \setlength runs, not dynamically.
-\newlength{\dictindent}
-
-\newcommand{\headword}[1]{%
-  \par\vspace{2pt}%
-  \leftskip=0pt \hangindent=\dictindent \hangafter=1
-  \noindent\textbf{#1}\enspace%
-}
-\newcommand{\graminfo}[1]{%
-  {\small\textit{#1}}\enspace%
-}
-\newcommand{\usgetym}[1]{%
-  {\small\textit{[#1]}}\enspace%
-}
-\newcommand{\usglabel}[1]{%
-  {\small\textit{[#1]}}\enspace%
-}
-\newcommand{\sensenum}[1]{%
-  \textbf{#1.}\enspace%
-}
-\newcommand{\examplecit}[2]{%
-  \par
-  \leftskip=\dictindent \hangindent=\dictindent \hangafter=1
-  \noindent{\fontsize{7pt}{8.4pt}\selectfont\textit{#1}}\quad #2%
-}
-\newcommand{\notetext}[1]{%
-  \par
-  \leftskip=\dictindent \hangindent=\dictindent \hangafter=1
-  \noindent / #1 /%
-}
-\newcommand{\subentry}[2]{%
-  \par\vspace{1pt}%
-  \leftskip=\dictindent \hangindent=\dictindent \hangafter=1
-  \noindent{\fontsize{7pt}{8.4pt}\selectfont\textbf{#1}}\enspace#2%
-}
-\newcommand{\subexamplecit}[2]{%
-  \par
-  \leftskip=2\dictindent \hangindent=\dictindent \hangafter=1
-  \noindent{\fontsize{7pt}{8.4pt}\selectfont\textit{#1}}\quad #2%
-}
-\newcommand{\subnotetext}[1]{%
-  \par
-  \leftskip=2\dictindent \hangindent=\dictindent \hangafter=1
-  \noindent / #1 /%
-}
-\newcommand{\editorialnote}[1]{%
-  \par{\small\color{gray}[Editorial note: #1]}%
-}
-
-%% Column separator
-\setlength{\columnsep}{1.2em}
-\setlength{\columnseprule}{0.4pt}
-
-%% Hyperref
-\hypersetup{colorlinks=true, linkcolor=black, urlcolor=blue}
-
-\begin{document}
-
-\title{\textbf{The Dictionary of Lahu}\\
-  \normalsize James A. Matisoff (1988)\\
-  \small TEI Lex-0 Digital Edition}
-\author{}
-\date{}
-\maketitle
-\thispagestyle{empty}
-
-\begin{multicols}{2}
-\raggedright
-\small
-\setlength{\dictindent}{1.3em}
+    <xsl:text>%% Auto-generated by src/lahu-latex.xsl from generated/tei/lahu.xml.
+%% Body content only -- the dictionary entries themselves. This is
+%% \input from inside src/latex/lahu-master.tex's multicols block, so
+%% it must not open its own \documentclass / \begin{document} /
+%% \begin{multicols}; see that file and README-tei.md for the rest of
+%% the document (preamble, entry-formatting macros, title page, TOC).
 </xsl:text>
 
     <xsl:apply-templates select="//tei:div[@type='dictionary']/tei:entry"/>
 
     <xsl:text>
-\end{multicols}
-\end{document}
 </xsl:text>
   </xsl:template>
 
@@ -218,6 +97,7 @@
     </xsl:if>
     <xsl:apply-templates select="tei:cit[@type='example']"/>
     <xsl:apply-templates select="tei:re"/>
+    <xsl:apply-templates select="tei:milestone"/>
   </xsl:template>
 
 
@@ -342,6 +222,21 @@
       <xsl:apply-templates select="tei:note[@type='editorial']"/>
     </xsl:if>
     <xsl:apply-templates select="tei:cit[@type='example']"/>
+    <xsl:apply-templates select="tei:milestone"/>
+  </xsl:template>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       LETTER DIVIDER
+       ══════════════════════════════════════════════════════════════════════ -->
+  <xsl:template match="tei:milestone[@unit='letter']">
+    <xsl:text>
+\dividerletter{</xsl:text>
+    <xsl:call-template name="latex-escape">
+      <xsl:with-param name="text" select="@n"/>
+    </xsl:call-template>
+    <xsl:text>}
+</xsl:text>
   </xsl:template>
 
   <!-- Suppress teiHeader -->

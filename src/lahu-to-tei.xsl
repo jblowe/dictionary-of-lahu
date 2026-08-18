@@ -41,6 +41,15 @@
     srcxcrN         rare artifact of lex2xml.py's bracket-citation
                     helper firing on an unrelated stray '[' character;
                     folded into the same editorial-note bucket as err.
+    divider         a "PUT x HERE" letter-divider marker from the
+                    original typesetting instructions, marking where a
+                    new letter-section begins (33 occurrences). Always
+                    the LAST band in whatever entry or sub was open when
+                    the marker line was reached (lex2xml.py has no
+                    concept of "outside any entry"), so it can land as a
+                    child of either entry or sub, not just at top level;
+                    see the divider template below and README-tei.md.
+                    No longer treated as an error (see dl_convert.py).
     comment, mode, hdr  never occur in the real Lahu data (legacy
                     bands from a different dictionary project); templates
                     provided only for robustness, and produce nothing.
@@ -118,6 +127,10 @@
       <xsl:attribute name="xml:id">
         <xsl:value-of select="@id"/>
       </xsl:attribute>
+      <!-- select="*" (not an explicit band list) is deliberate here: it's
+           what lets a divider child (see below) pass through generically
+           along with every other recognized band, without this template
+           needing to know about it by name. -->
       <xsl:apply-templates select="*"/>
     </tei:entry>
   </xsl:template>
@@ -274,6 +287,22 @@
     <xsl:if test="normalize-space(.) != ''">
       <tei:note type="editorial" resp="pipeline"><xsl:value-of select="."/></tei:note>
     </xsl:if>
+  </xsl:template>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       LETTER DIVIDER ("PUT x HERE" typesetting instructions, see
+       dl_convert.py). Rendered as an empty tei:milestone marking the
+       point where a new letter-section begins; the HTML and LaTeX
+       stylesheets turn this into a large ornamental letter. n holds the
+       divider letter/digraph exactly as printed (e.g. "a", "ch", "qh").
+       ══════════════════════════════════════════════════════════════════════ -->
+  <xsl:template match="divider">
+    <tei:milestone unit="letter">
+      <xsl:attribute name="n">
+        <xsl:value-of select="."/>
+      </xsl:attribute>
+    </tei:milestone>
   </xsl:template>
 
 
