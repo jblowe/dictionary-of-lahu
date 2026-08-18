@@ -21,8 +21,22 @@ generated/tei/lahu.xml
         |
         +--  src/lahu-html.xsl   -->  generated/latex/lahu.html
         |
-        +--  src/lahu-latex.xsl  -->  generated/latex/lahu.tex  --xelatex-->  generated/latex/lahu.pdf
+        +--  src/lahu-latex.xsl  -->  generated/latex/lahu.tex  (dictionary body only)
+                                            |
+                                            |  \input from src/latex/lahu-master.tex
+                                            |  (preamble, title page, table of contents)
+                                            v  --xelatex-->
+                                       generated/latex/lahu.pdf
 ```
+
+The final PDF is compiled from `src/latex/lahu-master.tex`, a
+hand-authored scaffold, not from `generated/latex/lahu.tex` directly.
+`lahu-master.tex` owns the documentclass, packages, body font, the
+dictionary's entry-formatting macros, the running footer, the title
+page (`src/latex/title.tex`), and the table of contents
+(`src/latex/toc.tex`); it `\input`s the generated dictionary body
+inside a `multicols` block it opens and closes. See "Rendering: PDF"
+below.
 
 Everything is run through one small generic driver, `src/render_tei.py`
 (itself adapted from the Jäschke project's `scripts/render_tei.py`),
@@ -37,22 +51,27 @@ python3 src/render_tei.py --tei generated/tei/lahu.xml \
 
 python3 src/render_tei.py --tei generated/tei/lahu.xml \
     --xsl src/lahu-latex.xsl --out generated/latex/lahu.tex
-xelatex -interaction nonstopmode -output-directory=generated/latex generated/latex/lahu.tex
-xelatex -interaction nonstopmode -output-directory=generated/latex generated/latex/lahu.tex   # second pass, for page refs
+
+xelatex -interaction nonstopmode -output-directory=generated/latex -jobname=lahu src/latex/lahu-master.tex
+xelatex -interaction nonstopmode -output-directory=generated/latex -jobname=lahu src/latex/lahu-master.tex   # second pass, for TOC/page refs
 ```
+
+Run `xelatex` from the project root (`-jobname=lahu` keeps the output
+named `generated/latex/lahu.pdf`, matching the earlier single-file
+layout, rather than `lahu-master.pdf`); see "Rendering: PDF" below.
 
 `render_tei.py` also strips a handful of stray control bytes before
 parsing (see "A well-formedness wrinkle in the Lexware XML" below), and
 accepts `--param NAME VALUE` (repeatable) to pass parameters through to
-the stylesheet, e.g. `--param show-editorial-notes 1` or
-`--param body-font "Charis SIL"`.
+the stylesheet, e.g. `--param show-editorial-notes 1`.
 
 Verified end to end on the full 135-file, 5,061-entry dictionary: the
 transducer output is well-formed XML; the HTML renders all 5,061
 entries and 26,251 sub-entries; the LaTeX compiles cleanly under
-XeLaTeX to a 656-page, two-column PDF with all of Matisoff's tone
-diacritics and IPA-ish characters (ɔ ɛ ɨ ə ŋ g̈ š ʔ, the acute/grave/
-circumflex/macron tone marks, etc.) rendering correctly.
+XeLaTeX to a 661-page, two-column PDF (title page + table of contents
++ 33 letter-section dividers + the dictionary body) with all of
+Matisoff's tone diacritics and IPA-ish characters (ɔ ɛ ɨ ə ŋ g̈ š ʔ, the
+acute/grave/circumflex/macron tone marks, etc.) rendering correctly.
 
 ## Band-tag to TEI element mapping
 
@@ -69,7 +88,25 @@ circumflex/macron tone marks, etc.) rendering correctly.
 | `no` | `note` |
 | `xx` | `note[@type='unclassified']` -- rendered like a plain note, visible by default (see below) |
 | `err`, `srcxcrN` | `note[@type='editorial'][@resp='pipeline']` -- hidden by default |
+| `divider` (a "PUT x HERE" letter-section marker, see below) | `milestone[@unit='letter'][@n='x']` |
 | `comment`, `mode`, `hdr` | never occur in the real Lahu data; templates present but produce nothing |
+
+### Letter dividers
+
+The original typesetting instructions include 33 "PUT x HERE" markers
+(one per letter/digraph in the collation sequence), each marking where
+a new letter-section begins in the printed dictionary. `dl_convert.py`
+recognizes these (`^\s*PUT (.+?) HERE\s*$`) as their own `divider` band
+rather than falling through to `xx`/`err` as unclassified text; see
+`README.md`. Because `lex2xml.py`'s band-to-XML conversion has no
+concept of "outside any entry," a `divider` line lands as the LAST
+child of whatever `entry` or `sub` happened to be open at that point in
+the source -- not necessarily a top-level sibling of `entry`. Both
+`lahu-html.xsl` and `lahu-latex.xsl` handle this by applying templates
+to `tei:milestone` from inside both the entry and sub-entry (`tei:re`)
+templates, so the divider renders correctly regardless of source
+nesting depth (see "Formatting conventions" below for how each medium
+renders it).
 
 Entries keep their source `id` (`Lahu.N`) as `xml:id` directly (it's
 already a valid TEI `xml:id`); sub-entries get `Lahu.N.M`.
@@ -182,6 +219,19 @@ an entry or sub-entry is preserved, including pipeline diagnostics
   the rendered dictionary. Keeping it visible also makes residual
   parsing gaps easy for a human reviewer to spot directly in the
   rendered page.
+- **Letter dividers** (`tei:milestone[@unit='letter']`, see "Letter
+  dividers" above) render as a full-width ornamental break: a large
+  italic bold letter flanked by horizontal rules, interrupting the
+  two-column flow rather than sitting inside a column. In the HTML
+  this is CSS `column-span: all` on `.letter-divider` (works even
+  though the divider can be nested inside `.entry`/`.sub-entry`, since
+  it's still an in-flow descendant of the `.dictionary` multicol
+  container). In the PDF (`lahu-latex.xsl` + `src/latex/lahu-master.tex`)
+  it's the `\dividerletter` macro, which closes the current `multicols`
+  block, prints the rule/letter/rule centered at full page width, then
+  reopens `multicols`.
+- **PDF only: title page, table of contents, and running head/foot.**
+  See "Rendering: PDF" below.
 
 ## Rendering: HTML
 
@@ -209,31 +259,72 @@ diagnostic notes (gray boxes) in the output; they're hidden by default.
 
 ```
 python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-latex.xsl --out generated/latex/lahu.tex
-xelatex -interaction nonstopmode -output-directory=generated/latex generated/latex/lahu.tex
-xelatex -interaction nonstopmode -output-directory=generated/latex generated/latex/lahu.tex   # second pass, for page refs
+
+xelatex -interaction nonstopmode -output-directory=generated/latex -jobname=lahu src/latex/lahu-master.tex
+xelatex -interaction nonstopmode -output-directory=generated/latex -jobname=lahu src/latex/lahu-master.tex   # second pass, for TOC/page refs
 ```
 
-Requires XeLaTeX (part of TeX Live / MacTeX) for Unicode support.
-**Default font: DejaVu Serif** -- chosen (over, say, a macOS system
-font) because Matisoff's romanization leans heavily on combining tone
-diacritics over both vowels and consonants (including g with a
-combining diaeresis, g̈, for the voiced velar fricative), and DejaVu
-has some of the broadest free Unicode coverage of IPA Extensions and
-combining marks available, plus it ships with most complete TeX Live
-installations so it's likely already on your system via `fontspec`
-without a separate download. If XeLaTeX can't find it, either install
-DejaVu Serif or point `--param body-font` at any other Unicode font you
-have with good combining-diacritic support, e.g. `"Charis SIL"` or
-`"Doulos SIL"` (both purpose-built for exactly this kind of linguistic
-data; see <https://software.sil.org/charis/>).
+Requires XeLaTeX (part of TeX Live / MacTeX) for Unicode support. Run
+from the project root (the `\input` paths in `lahu-master.tex` are
+relative to it); `-jobname=lahu` keeps the output named
+`generated/latex/lahu.pdf` even though the file actually compiled is
+`src/latex/lahu-master.tex`.
 
-Verified by compiling the full dictionary: 656 pages, no LaTeX errors
-(a normal handful of "Overfull \hbox" warnings from a few long
-unbreakable compound headwords in the narrow two-column layout, purely
-cosmetic).
+**`lahu-latex.xsl`'s output (`generated/latex/lahu.tex`) is body
+content only** -- the dictionary entries, not a compilable document by
+itself. Compile `src/latex/lahu-master.tex` (which `\input`s that body
+inside its own `multicols` block), not the XSLT output directly. This
+split exists so the title page, table of contents, and any future
+front/back matter can be hand-edited without touching generated
+output. See `src/latex/lahu-master.tex`, `src/latex/title.tex`, and
+`src/latex/toc.tex`.
 
-Pass `--param show-editorial-notes 1` to include pipeline diagnostic
-notes in the PDF.
+**Default font: DejaVu Serif** -- set via `\setmainfont` in
+`src/latex/lahu-master.tex` (not a stylesheet parameter, since font
+selection now lives in that hand-authored file). Chosen (over, say, a
+macOS system font) because Matisoff's romanization leans heavily on
+combining tone diacritics over both vowels and consonants (including g
+with a combining diaeresis, g̈, for the voiced velar fricative), and
+DejaVu has some of the broadest free Unicode coverage of IPA
+Extensions and combining marks available, plus it ships with most
+complete TeX Live installations so it's likely already on your system
+via `fontspec` without a separate download. If XeLaTeX can't find it,
+either install DejaVu Serif or edit the `\setmainfont{...}` line in
+`src/latex/lahu-master.tex` to any other Unicode font you have with
+good combining-diacritic support, e.g. `"Charis SIL"` or `"Doulos SIL"`
+(both purpose-built for exactly this kind of linguistic data; see
+<https://software.sil.org/charis/>).
+
+**Letter dividers, title page, table of contents, running head/foot:**
+see `src/latex/lahu-master.tex`'s own comments for the full macro
+reference. Briefly:
+- 33 letter-section dividers (`\dividerletter`, driven by
+  `tei:milestone` in the generated body), each a full-width rule/
+  ornamental-letter/rule that closes and reopens `multicols`.
+- A standalone title page (`src/latex/title.tex`).
+- A table of contents (`src/latex/toc.tex`) listing all 33 letter
+  sections with page numbers. This is a **hand-built list using
+  `\label`/`\pageref`, not `\tableofcontents`/`\addcontentsline`** --
+  see the `\dividerletter` comment in `lahu-master.tex` for why:
+  `\addcontentsline` corrupted a page of the compiled PDF when all 33
+  dividers were present (a real hyperref/multicol interaction bug,
+  confirmed by removing it), so don't reintroduce it without
+  re-testing a full 662-page compile.
+- A running footer (Lahu collation sequence, centered, on every body
+  page) and a running head/footer with page numbers: page number in
+  the outer corner (left on even/verso pages, right on odd/recto
+  pages); header shows the book title on even pages and the current
+  letter section (via `\rightmark`, updated by `\markright` in
+  `\dividerletter`) on odd pages. `\thispagestyle{empty}` on the title
+  and TOC pages suppresses all of this there.
+
+Verified by compiling the full dictionary: 661 pages (title + TOC +
+33 dividers + the dictionary body), no LaTeX errors (a normal handful
+of "Overfull \hbox" warnings from a few long unbreakable compound
+headwords in the narrow two-column layout, purely cosmetic).
+
+Pass `--param show-editorial-notes 1` to `render_tei.py`'s
+`lahu-latex.xsl` step to include pipeline diagnostic notes in the PDF.
 
 ### If your compile log explodes into millions of lines
 
@@ -259,15 +350,14 @@ warning. Two fixes, matching the font-fallback guidance above:
   * **Install DejaVu** (matches what this pipeline was verified
     against): on macOS, `brew install --cask font-dejavu` installs the
     whole family, including Serif. Re-run the two `xelatex` invocations
-    afterward -- no need to regenerate `lahu.tex` itself.
-  * **Or point at a font you already have**, by regenerating
-    `lahu.tex` with `--param body-font "..."` set to any installed
-    Unicode font (see the font paragraph above for combining-diacritic
-    caveats), e.g.:
-    ```
-    python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-latex.xsl \
-        --out generated/latex/lahu.tex --param body-font "Charis SIL"
-    ```
+    afterward -- no need to regenerate anything.
+  * **Or point at a font you already have**, by editing the
+    `\setmainfont{...}` line near the top of `src/latex/lahu-master.tex`
+    to any installed Unicode font (see the font paragraph above for
+    combining-diacritic caveats), e.g. `\setmainfont{Charis SIL}...`,
+    then re-run the two `xelatex` invocations. No need to regenerate
+    `generated/latex/lahu.tex` for this -- the font is set in
+    `lahu-master.tex`, not in the generated body.
 
 Either way, a missing/misnamed font only ever affects the two `xelatex`
 steps at the very end of the pipeline -- if you hit this, everything
@@ -317,8 +407,12 @@ input is fed through it.
 | `src/lahu-tei-lex0.xml` | Annotated TEI header/entry-structure reference (checked-in, hand-written; not used at runtime) |
 | `src/lahu-to-tei.xsl` | The transducer: ad hoc Lexware-band XML to TEI Lex-0 |
 | `src/lahu-html.xsl` | TEI Lex-0 to HTML5 |
-| `src/lahu-latex.xsl` | TEI Lex-0 to XeLaTeX source |
+| `src/lahu-latex.xsl` | TEI Lex-0 to XeLaTeX source (dictionary body only; see below) |
+| `src/latex/lahu-master.tex` | Hand-authored scaffold: documentclass/packages, body font, entry-formatting macros (`\headword`, `\dividerletter`, etc.), running head/footer, `\input`s title.tex/toc.tex/the generated body. Compile THIS with XeLaTeX, not `generated/latex/lahu.tex` directly |
+| `src/latex/title.tex` | Hand-authored standalone title page, `\input` from lahu-master.tex |
+| `src/latex/toc.tex` | Hand-authored table of contents (`\label`/`\pageref`-based, not `\tableofcontents`; see "Rendering: PDF"), `\input` from lahu-master.tex |
 | `src/render_tei.py` | Generic XSLT runner (any stylesheet, any XML) |
 | `generated/tei/lahu.xml` | The transduced TEI Lex-0 edition (generated, gitignored) |
 | `generated/latex/lahu.html` | Rendered HTML (generated, gitignored) |
-| `generated/latex/lahu.tex`, `generated/latex/lahu.pdf` | Rendered LaTeX source and compiled PDF (generated, gitignored) |
+| `generated/latex/lahu.tex` | Rendered LaTeX dictionary body (generated, gitignored; not standalone, see `src/latex/lahu-master.tex`) |
+| `generated/latex/lahu.pdf` | Compiled PDF, from `src/latex/lahu-master.tex` (generated, gitignored) |

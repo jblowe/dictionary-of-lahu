@@ -68,7 +68,11 @@ reproducible and gitignored (see `.gitignore`). Three top-level folders:
     scratch-adjacent reasoning, not just data. Also holds
     `lahu-tei-lex0.xml`, a hand-written annotated TEI reference doc
     (not used at runtime by any script, just documentation kept next
-    to the code it documents).
+    to the code it documents). `src/latex/` holds the hand-authored
+    PDF scaffold -- `lahu-master.tex` (documentclass, packages, entry
+    macros, running head/footer), `title.tex` (title page), `toc.tex`
+    (table of contents) -- which `\input`s the generated dictionary
+    body; see README-tei.md's "Rendering: PDF".
 
 The READMEs live at the project root, alongside these three folders.
 
@@ -108,7 +112,11 @@ generated/lahudico-lexware.xml     (whole dictionary, XML)
 generated/tei/lahu.xml              (TEI Lex-0 digital edition)
         |
         +-- src/lahu-html.xsl  --> generated/latex/lahu.html
-        +-- src/lahu-latex.xsl --> generated/latex/lahu.tex --xelatex--> generated/latex/lahu.pdf
+        +-- src/lahu-latex.xsl --> generated/latex/lahu.tex  (dictionary body only)
+                                        |
+                                        |  \input from src/latex/lahu-master.tex
+                                        v  (title page, TOC, preamble) --xelatex-->
+                                   generated/latex/lahu.pdf
 ```
 
 Run from the project root (the folder containing `originals/`,
@@ -131,8 +139,12 @@ python3 src/lex2xml.py generated/lahudico-lexware.txt generated/lahudico-lexware
 python3 src/render_tei.py --tei generated/lahudico-lexware.xml --xsl src/lahu-to-tei.xsl --out generated/tei/lahu.xml
 python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-html.xsl --out generated/latex/lahu.html
 python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-latex.xsl --out generated/latex/lahu.tex
-xelatex -interaction nonstopmode -output-directory=generated/latex generated/latex/lahu.tex   # twice, for page refs
+xelatex -interaction nonstopmode -output-directory=generated/latex -jobname=lahu src/latex/lahu-master.tex   # twice, for TOC/page refs
 ```
+
+The last step compiles `src/latex/lahu-master.tex` (a hand-authored
+scaffold: title page, table of contents, preamble), which `\input`s
+`generated/latex/lahu.tex` -- not that generated file directly.
 
 See **README-tei.md** for the TEI transduction and HTML/PDF rendering
 in detail (band-to-TEI mapping table, font notes, known
@@ -200,6 +212,16 @@ must follow the base character. `dl_convert.py`'s table-driven
 substitution handles this directly by mapping each DL-ASCII diacritic
 code to its already-composed (or correctly-ordered combining)
 Unicode form, rather than doing a separate reorder pass.
+
+**Letter dividers**: the original typesetting instructions include 33
+"PUT x HERE" markers (one per letter/digraph in the collation
+sequence), each marking where a new letter-section begins in the
+printed dictionary. These are recognized as their own `divider` band
+(`^\s*PUT (.+?) HERE\s*$` against the already-unescaped line) rather
+than falling through to the unknown-line `xx`/`err` path -- checked
+first, highest priority, so a divider line can never be misclassified.
+See README-tei.md for how `divider` becomes a `tei:milestone` and
+renders as an ornamental letter break in the HTML/PDF.
 
 **Content-preservation / `err` band**: every parseable line's content
 makes it into the Lexware output even when the classifier can't
@@ -292,8 +314,11 @@ README rather than duplicating everything here.
     subscript/superscript toggles and other formatting bytes that
     carry no textual content once stripped.
   * Real parsing ambiguity in the source shows up as `err` bands in
-    the Lexware output (1,783 across the whole dictionary as of the
-    current classifier) -- mostly lines the classifier couldn't
+    the Lexware output (1,750 across the whole dictionary as of the
+    current classifier -- 33 fewer than earlier counts, since the 33
+    "PUT x HERE" letter-divider lines are now their own `divider` band
+    instead of falling through to `xx`/`err`; see "The scripts" above)
+    -- mostly lines the classifier couldn't
     confidently type (long example/gloss continuations wrapped across
     lines, stray formatting artifacts, and a handful of leftover
     WordStar toggle bytes the upstream conversion didn't fully
@@ -339,7 +364,8 @@ All generated; all gitignored (see "Directory layout" above).
 | `src/lahu-tei-lex0.xml` | Annotated TEI header/entry-structure reference (checked-in, hand-written) |
 | `generated/tei/lahu.xml` | TEI Lex-0 digital edition |
 | `generated/latex/lahu.html` | Rendered HTML |
-| `generated/latex/lahu.tex`, `generated/latex/lahu.pdf` | Rendered LaTeX source and compiled PDF |
+| `generated/latex/lahu.tex` | Rendered LaTeX dictionary body (not standalone; `\input` from `src/latex/lahu-master.tex`, checked-in, hand-authored) |
+| `generated/latex/lahu.pdf` | Compiled PDF (from `src/latex/lahu-master.tex`, which also holds the title page and table of contents -- see `src/latex/title.tex`/`toc.tex`) |
 
 See inline comments in each script for line-level detail,
 `README-lex2xml.md` for the XML conversion specifically, and
