@@ -184,18 +184,24 @@ LAHU_UNICODE = {
     '\\': 'ʔ',  # glottal stop
     ']': '̊',  # over-ring (standalone/combining form)
     '^': 'ɨ',  # barred-i
-    '_': '◦',  # "triple-dash" -> white bullet
+    '_': '≡',  # "triple-dash" -> IDENTICAL TO (three stacked bars)
     '{': 'ŋ',  # ng (eng)
-    '|': '◦̄',  # "quadruple-dash" -> white bullet + macron
+    '|': '≣',  # "quadruple-dash" -> STRICTLY EQUIVALENT TO (four stacked bars)
     '}': 'g̈',  # g-umlaut (voiced velar fricative substitute)
     '~': '~',  # alternation tilde
+    '&': '⪤',  # comparative-linguistics "cognate with" connector (was a
+               # literal passthrough ampersand; every occurrence in the
+               # corpus is this use, never literal English "and")
 }
 
 # Characters that pass through an ALTFONT run unmodified (shared between
 # the ordinary and the alternate font): from LahuParse.pl's $unchanged,
 # minus \x19 (italics), which this script now handles as a toggle before
 # altfont extraction rather than passing through literally.
-UNCHANGED_CHARS = set(" (),-=aiueogjdnbmhyfvl" "qkctp" "h" "w*rs'&z/")
+UNCHANGED_CHARS = set(" (),-=aiueogjdnbmhyfvl" "qkctp" "h" "w*rs'z/")
+# NB: '&' used to be listed here (plain passthrough); it's now a LAHU_UNICODE
+# entry instead (see above), since every occurrence in the corpus is the
+# comparative-linguistics "cognate with" connector, not literal English "and".
 
 # Small, deliberately conservative extension beyond LahuParse.pl's original
 # $unchanged: plain ASCII punctuation/letters that turn up inside ALTFONT
@@ -220,6 +226,28 @@ STANDALONE_DIAC = {
     ']': '˚',  # RING ABOVE
 }
 DIAC_TRIGGERS = set(STANDALONE_DIAC)
+
+# '.' (dot below) is a seventh composing diacritic -- used throughout
+# citation forms from Sanskrit/Pali/Tibetan(WT)/Burmese(WB) loanword
+# etymologies for retroflex/other dotted consonants, e.g. "n\x08." -> ṇ,
+# "s\x08." -> ṣ, "t\x08." -> ṭ, "d\x08." -> ḍ (~60 occurrences across the
+# corpus; verified by grepping every base+BS+char triple in the raw
+# source). Deliberately kept OUT of STANDALONE_DIAC/DIAC_TRIGGERS: unlike
+# the six above, a bare '.' is overwhelmingly ordinary sentence-final
+# punctuation, so it must never be caught by the bare-standalone-diacritic
+# path -- only usable here, in composition (base + BS + diacritic).
+# NFC normalization (already applied at the end of both pipelines) folds
+# base+U+0323 into the precomposed Unicode letter (ṇ, ṣ, ṭ, ḍ, ...)
+# automatically, so no further composition step is needed.
+COMPOSE_ONLY_DIAC = {
+    '.': '̣',  # COMBINING DOT BELOW
+}
+# Combined lookup used only at the point of composing a diacritic onto a
+# preceding base character (see convert_lahu): every DIAC_TRIGGERS byte's
+# COMBINING form (not its bare/spacing STANDALONE_DIAC form) plus the
+# compose-only diacritics above.
+_COMPOSE_DIAC_VALUE = {d: LAHU_UNICODE[d] for d in DIAC_TRIGGERS}
+_COMPOSE_DIAC_VALUE.update(COMPOSE_ONLY_DIAC)
 
 SUPERSCRIPT_DIGITS = {
     '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵',
@@ -304,10 +332,53 @@ def preprocess_line(line: str, warnings: Counter) -> str:
     return ''.join(out)
 
 
+_BACKSPACE_RUN_RE = re.compile(r'\x08{2,}')
+
+
+def _expand_multibase_diacritic_runs(s: str, warnings: Counter) -> str:
+    """Rare WordStar keystroke irregularity: K base characters followed by
+    K consecutive backspaces followed by K diacritic characters, e.g.
+    "st\x08\x08.." (instead of the normal, interleaved "base BS diacritic"
+    repeated K times, e.g. "s\x08.t\x08."). Each backspace moves the print
+    head back one more position, so after K of them the head is sitting K
+    characters back; printing each diacritic in turn overstrikes one base
+    and (typewriter-style) advances the head by one, so the diacritics end
+    up applied to the K preceding bases in the same left-to-right order --
+    i.e. this means exactly the same thing as the normal interleaved form.
+    Rewritten here into K ordinary single triples so the composition logic
+    in convert_lahu below can handle it completely unmodified.
+
+    Verified against the one occurrence of this pattern in the whole
+    corpus: "ust\x08\x08..ra" in BASE.LH-IU.TXE (Skt. "camel", -> uṣṭra),
+    where the same word appears correctly keystroked the normal way
+    elsewhere in the dictionary (BASE.LH-KA.TXE); see README.md.
+    """
+    if '\x08\x08' not in s:
+        return s
+    out = []
+    i = 0
+    for m in _BACKSPACE_RUN_RE.finditer(s):
+        k = len(m.group(0))
+        start, end = m.start(), m.end()
+        if start - k < i or end + k > len(s):
+            continue  # not enough room for a clean K/K/K match; leave it
+            # for the ordinary per-character loop (which drops stray
+            # backspaces and warns, same as any other unexpected control byte)
+        bases = s[start - k:start]
+        diacs = s[end:end + k]
+        out.append(s[i:start - k])
+        out.append(''.join(b + '\x08' + d for b, d in zip(bases, diacs)))
+        warnings['multi-backspace diacritic run expanded (k=%d)' % k] += 1
+        i = end + k
+    out.append(s[i:])
+    return ''.join(out)
+
+
 def convert_lahu(s: str, warnings: Counter) -> str:
     """Convert the contents of one ALTFONT run (DL-ASCII Lahu keystrokes)
     to Unicode. Handles the char+BS+diacritic composition, bare
     diacritics, the main substitution table, and pass-through characters."""
+    s = _expand_multibase_diacritic_runs(s, warnings)
     out = []
     i, n = 0, len(s)
     while i < n:
@@ -323,7 +394,7 @@ def convert_lahu(s: str, warnings: Counter) -> str:
             # has no use for print-attribute toggles, so drop silently.
             i += 1
             continue
-        if i + 2 < n and s[i + 1] == '\x08' and s[i + 2] in DIAC_TRIGGERS:
+        if i + 2 < n and s[i + 1] == '\x08' and s[i + 2] in _COMPOSE_DIAC_VALUE:
             base = s[i]
             diac = s[i + 2]
             base_uni = LAHU_UNICODE.get(base)
@@ -331,7 +402,7 @@ def convert_lahu(s: str, warnings: Counter) -> str:
                 base_uni = base if (base in UNCHANGED_CHARS or base.isalpha()) else base
                 if not (base in UNCHANGED_CHARS or base.isalpha()):
                     warnings['unknown base before diacritic %r' % base] += 1
-            out.append(base_uni + LAHU_UNICODE[diac])
+            out.append(base_uni + _COMPOSE_DIAC_VALUE[diac])
             i += 3
             continue
         if c in DIAC_TRIGGERS:
@@ -372,6 +443,30 @@ def extract_and_convert_altfont(line: str, warnings: Counter) -> str:
     return ''.join(out)
 
 
+# Defensive normalization, applied at the very end of both the plain-text
+# and Lexware pipelines (see below): the source has no curly/typographic
+# quotation marks anywhere -- Matisoff's WordStar files only ever use
+# plain ' and " -- so none of the conversion logic above deliberately
+# produces curly quotes either. Kept here as a guard in case any future
+# change (a new table entry, a copy-pasted note, etc.) introduces one
+# accidentally; folds it straight back to the plain ASCII equivalent
+# rather than letting a stray curly quote slip through unnoticed.
+_TYPOGRAPHIC_QUOTES = {
+    '’': "'",  # RIGHT SINGLE QUOTATION MARK -> APOSTROPHE
+    '‘': "'",  # LEFT SINGLE QUOTATION MARK -> APOSTROPHE
+    '”': '"',  # RIGHT DOUBLE QUOTATION MARK -> QUOTATION MARK
+    '“': '"',  # LEFT DOUBLE QUOTATION MARK -> QUOTATION MARK
+}
+
+
+def _finalize_text(text: str) -> str:
+    """NFC-normalize and defensively straighten any typographic quotes.
+    Shared final step for both the plain-text and Lexware pipelines."""
+    for curly, straight in _TYPOGRAPHIC_QUOTES.items():
+        text = text.replace(curly, straight)
+    return unicodedata.normalize('NFC', text)
+
+
 def convert_line_to_plain_unicode(line: str, warnings: Counter) -> str:
     line = preprocess_line(line, warnings)
     line = extract_and_convert_altfont(line, warnings)
@@ -400,7 +495,7 @@ def convert_file_to_plain_text(path: str, warnings: Counter) -> str:
     # backspace mechanism (see convert_lahu) may not be in NFC even though
     # the static LAHU_UNICODE table entries are; do it once, here, for the
     # whole file so output is always in one canonical, consistent form.
-    return unicodedata.normalize('NFC', result.strip('\n') + '\n')
+    return _finalize_text(result.strip('\n') + '\n')
 
 
 # =====================================================================
@@ -824,7 +919,7 @@ def parse_base_file_to_lexware(path: str, warnings: Counter):
 
     entry = LexEntry()
     entry.bands = out
-    return unicodedata.normalize('NFC', entry.as_text()), log
+    return _finalize_text(entry.as_text()), log
 
 
 # =====================================================================

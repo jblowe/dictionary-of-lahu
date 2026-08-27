@@ -329,7 +329,32 @@
         <xsl:with-param name="to">\textasciitilde{}</xsl:with-param>
       </xsl:call-template>
     </xsl:variable>
-    <xsl:value-of select="$step10"/>
+    <!-- Straight quotes/apostrophes must render as straight glyphs, not
+         curly ones: there are no curly quotes anywhere in the source
+         (see README.md), only plain ' and ", always used on both sides
+         of a quotation. \textquotesingle{}/\textquotedbl{} guarantee the
+         straight glyph regardless of any font ligature feature (this
+         used to be handled by turning off fontspec's Ligatures=TeX in
+         lahu-master.tex alone, but that's a font-level setting; escaping
+         here too means this stays correct even if that setting is ever
+         changed back). Steps 11-12, after the backslash step, so the
+         backslashes inside these commands' own braces don't get
+         re-escaped, same reasoning as steps 9-10 above. -->
+    <xsl:variable name="step11">
+      <xsl:call-template name="str-replace">
+        <xsl:with-param name="text" select="$step10"/>
+        <xsl:with-param name="from">'</xsl:with-param>
+        <xsl:with-param name="to">\textquotesingle{}</xsl:with-param>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="step12">
+      <xsl:call-template name="str-replace">
+        <xsl:with-param name="text" select="$step11"/>
+        <xsl:with-param name="from">"</xsl:with-param>
+        <xsl:with-param name="to">\textquotedbl{}</xsl:with-param>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="$step12"/>
   </xsl:template>
 
   <!-- Recursive string replace (XSLT 1.0) -->

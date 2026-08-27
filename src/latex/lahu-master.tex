@@ -36,6 +36,7 @@
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
+\usepackage{newunicodechar}
 
 %% Page geometry
 \geometry{
@@ -54,7 +55,47 @@
 %% combining diacritics well, e.g. "Charis SIL" (built specifically for
 %% this kind of linguistic data; see https://software.sil.org/charis/)
 %% or "Doulos SIL".
-\setmainfont{DejaVu Serif}[Ligatures=TeX, Renderer=OpenType]
+%% NB: deliberately NOT Ligatures=TeX. That option treats a bare `'`/`"`
+%% as a CLOSING curly quote (TeX's classic convention expects an opening
+%% backtick/`` `` for the other side); since our source only ever emits
+%% plain straight `'`/`"` on both sides of a quotation (never backticks),
+%% every one of them was coming out as a right-facing curly quote at
+%% render time (’.../’..., not ‘.../’...) even though the underlying text
+%% is plain ASCII throughout the whole pipeline. Confirmed by extracting
+%% the compiled PDF's text layer. We don't need TeX's dash-ligation
+%% either -- em dashes already arrive as real U+2014 characters straight
+%% out of dl_convert.py, never as literal "--". See also latex-escape in
+%% lahu-latex.xsl, which now emits \textquotesingle{}/\textquotedbl{} for
+%% '/" as a second, independent guard against this regardless of font
+%% ligature settings.
+\setmainfont{DejaVu Serif}[Renderer=OpenType]
+
+%% Per-character fallback fonts for symbols DejaVu Serif doesn't cover.
+%% "DejaVu Math TeX Gyre" ships alongside DejaVu Serif in any reasonably
+%% complete TeX Live install (it's part of the same dejavu/tex-gyre-math
+%% font collection), so this should be available wherever DejaVu Serif
+%% itself is; \IfFontExistsTF guards it anyway so a missing font here
+%% degrades to a normal "Missing character" warning instead of a hard
+%% compile error.
+\IfFontExistsTF{DejaVu Math TeX Gyre}{%
+  \newfontfamily\dejavumathfallback{DejaVu Math TeX Gyre}[Renderer=OpenType]
+  \newunicodechar{≣}{{\dejavumathfallback ≣}}% U+2263 STRICTLY EQUIVALENT TO
+}{}
+
+%% ⪤ (U+2AA4 GREATER-THAN OVERLAPPING LESS-THAN, our "cognate with"
+%% connector -- see the '&' entry in LAHU_UNICODE in dl_convert.py) is
+%% NOT in DejaVu Serif, DejaVu Math TeX Gyre, or any other font in a
+%% standard TeX Live install -- confirmed by scanning every font's
+%% cmap. "STIX Two Math" does have it. This is not part of a base TeX
+%% Live install, so it needs a one-time manual install; see README.md
+%% for the install command. As with the DejaVu Math TeX Gyre fallback
+%% above, \IfFontExistsTF guards it: if the font isn't installed, ⪤
+%% degrades to a normal "Missing character" warning at compile time
+%% (a visible blank/box glyph in the PDF) rather than a hard error.
+\IfFontExistsTF{STIX Two Math}{%
+  \newfontfamily\stixmathfallback{STIX Two Math}[Renderer=OpenType]
+  \newunicodechar{⪤}{{\stixmathfallback ⪤}}% U+2AA4 GREATER-THAN OVERLAPPING LESS-THAN
+}{}
 
 %% Dictionary entry macros
 %%

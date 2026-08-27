@@ -295,6 +295,32 @@ good combining-diacritic support, e.g. `"Charis SIL"` or `"Doulos SIL"`
 (both purpose-built for exactly this kind of linguistic data; see
 <https://software.sil.org/charis/>).
 
+**Optional math font, for the `⪤` cognate symbol:** the comparative-
+linguistics "cognate with" connector `⪤` (U+2AA4 GREATER-THAN
+OVERLAPPING LESS-THAN -- what `&` in the source data is recoded to;
+see the `LAHU_UNICODE` table in `src/dl_convert.py`) isn't in DejaVu
+Serif, isn't in "DejaVu Math TeX Gyre" either, and isn't in any of the
+few hundred fonts that ship with a standard TeX Live install. Without
+it installed, `⪤` will render as a blank/missing-glyph box wherever it
+appears (about 940 places in the full dictionary) -- everything else
+compiles and renders fine regardless, this is purely cosmetic for that
+one symbol. **"STIX Two Math"** is a free, open-license (OFL) math font
+that does have this glyph. To install it:
+
+  * **macOS (Homebrew):** `brew install --cask font-stix-two-math`
+  * **Manually (any OS):** download `STIXTwoMath-Regular.ttf` from
+    Google Fonts' mirror of the STIX Two family
+    (<https://github.com/google/fonts/tree/main/ofl/stixtwomath>) and
+    install it like any other font (double-click on macOS/Windows, or
+    drop into `~/.local/share/fonts` and run `fc-cache -f` on Linux).
+
+No changes to `lahu-master.tex` are needed after installing -- it
+already checks for "STIX Two Math" via `\IfFontExistsTF` and wires it
+in as a per-character fallback just for `⪤` (the same pattern used for
+`≣`/"DejaVu Math TeX Gyre" just above it in the file); the main body
+font stays DejaVu Serif throughout. Just re-run the two `xelatex`
+invocations after installing -- no need to regenerate anything.
+
 **Letter dividers, title page, table of contents, running head/foot:**
 see `src/latex/lahu-master.tex`'s own comments for the full macro
 reference. Briefly:
