@@ -1,0 +1,117 @@
+/* Dictionary of Lahu -- static search site styling.
+   Paragraph-view rules below mirror the visual semantics of the LaTeX
+   entry-formatting macros in src/latex/lahu-master.tex (\headword,
+   \graminfo, \usgetym/\usglabel, \sensenum, \notetext, \subentry,
+   \examplecit/\subexamplecit) -- see that file's comments for the
+   macro definitions this is modeled on. */
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+header h1, .btn, .form-select, .form-control, #status, #page-info, footer {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ---- breadcrumbs ---- */
+.breadcrumb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: .85rem;
+  padding: .35em .6em;
+}
+.breadcrumb-chip button {
+  line-height: 1;
+  padding: 0;
+  font-size: .7rem;
+}
+
+/* ---- paragraph (dictionary-page) view ---- */
+.dict-article {
+  padding: .5em 0;
+  border-bottom: 1px solid #e9e9e9;
+}
+.dict-article:last-child {
+  border-bottom: none;
+}
+.dict-headword {
+  font-weight: bold;
+  font-size: 1.05em;
+}
+.dict-pos {
+  font-style: italic;
+  font-size: .85em;
+  color: #444;
+  margin-left: .4em;
+}
+.dict-usg {
+  font-style: italic;
+  font-size: .85em;
+  color: #444;
+  margin-left: .4em;
+}
+.dict-sense-num {
+  font-weight: bold;
+}
+.dict-def {
+  margin-left: .4em;
+}
+.dict-note {
+  margin-left: 1.6em;
+  font-size: .92em;
+  color: #333;
+}
+.dict-example {
+  margin-left: 1.6em;
+  font-size: .9em;
+}
+.dict-example-lhu {
+  font-style: italic;
+  margin-right: .6em;
+}
+.dict-subentry {
+  margin-left: 1.6em;
+  margin-top: .25em;
+  font-size: .95em;
+}
+.dict-subheadword {
+  font-weight: bold;
+  font-size: .95em;
+}
+.dict-subnote {
+  margin-left: 3.2em;
+  font-size: .9em;
+  color: #333;
+}
+.dict-subexample {
+  margin-left: 3.2em;
+  font-size: .88em;
+}
+
+/* ---- table view ---- */
+#results table {
+  font-size: .92em;
+}
+#results tr.article-row td {
+  border-top: 2px solid #dee2e6;
+}
+#results tr.sub-row td:first-child {
+  padding-left: 2em;
+  color: #333;
+}
+#results tr.sub-row {
+  background-color: #fafafa;
+}
+.loan-badge {
+  font-size: .75em;
+}
+
+/* ---- search-term highlighting ---- */
+mark.dict-hl {
+  background-color: #fff3a0;
+  color: inherit;
+  padding: 0 .1em;
+  border-radius: .15em;
+}

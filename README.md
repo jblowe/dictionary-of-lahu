@@ -114,14 +114,24 @@ generated/tei/lahu.xml              (TEI Lex-0 digital edition)
         +-- src/lahu-html.xsl  --> generated/latex/lahu.html
         +-- src/lahu-latex.xsl --> generated/latex/lahu.tex  (dictionary body only)
                                         |
+originals/DLOtherFiles/ --------------+
+        |                              |
+        |  src/process_front_and_back_matter.py                |
+        v  (dedication, plates list, acknowledgments,           |
+generated/latex/frontmatter*.tex,      symbols/abbreviations,   |
+generated/latex/backmatter.tex         bibliography, appendices)|
+        |                              |                        |
+        +------------------------------+------------------------+
+                                        |
                                         |  \input from src/latex/lahu-master.tex
-                                        v  (title page, TOC, preamble) --xelatex-->
+                                        v  (title page, TOC, front/back matter,
+                                            preamble) --xelatex-->
                                    generated/latex/lahu.pdf
 ```
 
 Run from the project root (the folder containing `originals/`,
 `generated/`, and `src/`). The whole pipeline is wrapped in one script,
-`src/regenerate-all-files.sh`, which runs all eight steps below in
+`src/regenerate-all-files.sh`, which runs all nine steps below in
 order and stops on the first error:
 
 ```
@@ -139,12 +149,38 @@ python3 src/lex2xml.py generated/lahudico-lexware.txt generated/lahudico-lexware
 python3 src/render_tei.py --tei generated/lahudico-lexware.xml --xsl src/lahu-to-tei.xsl --out generated/tei/lahu.xml
 python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-html.xsl --out generated/latex/lahu.html
 python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-latex.xsl --out generated/latex/lahu.tex
+python3 src/process_front_and_back_matter.py .
 xelatex -interaction nonstopmode -output-directory=generated/latex -jobname=lahu src/latex/lahu-master.tex   # twice, for TOC/page refs
 ```
 
 The last step compiles `src/latex/lahu-master.tex` (a hand-authored
-scaffold: title page, table of contents, preamble), which `\input`s
-`generated/latex/lahu.tex` -- not that generated file directly.
+scaffold: title page, table of contents, front/back matter, preamble),
+which `\input`s `generated/latex/lahu.tex` and the generated
+`generated/latex/frontmatter*.tex`/`backmatter.tex` -- not those
+generated files directly.
+
+**Front/back matter** (dedication, list of plates, acknowledgments,
+symbols and abbreviations, an Introduction outline with one recovered
+subsection, bibliography, and two unassigned back-matter appendices) is
+recovered from `originals/DLOtherFiles/` by
+`src/process_front_and_back_matter.py`, a separate script from
+`dl_convert.py` by design (it reuses a few of that script's byte-level
+conversion functions but does its own document-level layout rendering,
+which doesn't belong in the core WordStar-conversion script). The order
+follows the book's own printed Table of Contents, transcribed almost
+verbatim in `originals/DLOtherFiles/CONTENTS.TXE` -- see
+`src/front-back-matter-order.csv` for the full section-by-section order
+(one row per section, including the nine Introduction subsections with
+no surviving file) and that script's module docstring for exactly which
+of the ~20 files in `originals/DLOtherFiles/` are included and why
+(several are excluded as superseded drafts, internal production notes,
+or binary printer/font resources -- also see README-tei.md). Front
+matter is roman-numbered (title page through the Introduction and its
+recovered 2.2 "Lahu dialects" section); the dictionary body resets to
+arabic 1; back matter (the two unassigned appendices, the bibliography,
+and finally Plates) continues the arabic numbering. `src/latex/toc.tex`
+lists every front/back-matter section by name with the correct roman or
+arabic page number, resolved automatically via `\pageref`.
 
 See **README-tei.md** for the TEI transduction and HTML/PDF rendering
 in detail (band-to-TEI mapping table, font notes, known
@@ -298,6 +334,86 @@ print-quality PDF (via XeLaTeX). See **README-tei.md** for full detail;
 this is a separate, later stage of the pipeline, so it gets its own
 README rather than duplicating everything here.
 
+## Static search website (docs/)
+
+`docs/` is a self-contained, client-side-only website -- a searchable
+digital edition of the dictionary meant to be published with GitHub
+Pages (repo Settings -> Pages -> Deploy from branch -> `main` ->
+`/docs`; no GitHub Actions workflow needed). Unlike everything else in
+this project, `docs/` is checked into git rather than gitignored,
+since GitHub Pages serves those files directly.
+
+**How it works.** `src/build_search_db.py` reads `generated/tei/lahu.xml`
+(the same source `extract_flat_file.py` uses) and writes
+`docs/lahu-dictionary.sqlite3` -- two tables, `articles` (one row per
+top-level headword) and `subentries` (one row per sub-headword, linked
+by `article_id`), each with plain columns for display and a parallel
+set of `search_*` columns (Unicode-normalized, case-folded, but
+*not* diacritic-stripped -- Lahu tone marks are contrastive, unlike
+the roman cross-language forms a project like STEDT can safely
+diacritic-fold) for substring search. It also extracts a loanword
+source language from each `LOAN`/`LOAN?` entry's etymology note, the
+same way the one-off `src/extract_loans.py` script did for an earlier
+spreadheet request. Row `id` order is already correct Lahu collation
+order, because `generated/tei/lahu.xml` already is (no need to re-run
+`src/lahu_collate.py`'s sort key here).
+
+The page itself (`docs/index.html` + `docs/app.js` + `docs/style.css`)
+is plain, hand-written JavaScript -- no Node/npm build step, no
+framework. It loads the whole `.sqlite3` file once into the browser's
+memory using the official `@sqlite.org/sqlite-wasm` build (vendored by
+hand into `docs/vendor/sqlite3-wasm/` -- see that folder's `README.md`
+for provenance and how to update it) and runs every search query
+locally; nothing is ever sent to a server. Layout uses Bootstrap 5
+(loaded from a CDN). A search result is always a whole dictionary
+article (headword + all its subentries), and the paragraph display
+mode is styled to resemble the LaTeX rendering's entry macros (see
+`src/latex/lahu-master.tex`'s `\headword`/`\graminfo`/`\notetext`/
+`\subentry` comments).
+
+**Rebuilding it.** `src/build_search_db.py` is standalone -- it is
+*not* part of `regenerate-all-files.sh` -- run it by hand whenever you
+want to refresh the website's data, after regenerating
+`generated/tei/lahu.xml`:
+
+```sh
+python3 src/build_search_db.py
+```
+
+This overwrites `docs/lahu-dictionary.sqlite3` and `docs/db-meta.json`
+(the latter carries the database's true decompressed byte size, so the
+page can show accurate download-progress -- GitHub Pages gzips a file
+this size, so the browser's own `Content-Length` header reports the
+compressed wire size instead).
+
+**Publishing it.** `src/publish-site.sh` does the above and then
+commits and pushes `docs/` (and `src/build_search_db.py`, if it
+changed) to `origin main`, which is all GitHub Pages needs to redeploy
+-- there's no CI build step, unlike `~/GitHub/stedt-static`'s
+Actions-based publish, since `docs/` has nothing left to build once
+`build_search_db.py` has run:
+
+```sh
+src/publish-site.sh                                  # default commit message
+src/publish-site.sh "Refresh site after fixing entry X"
+```
+
+It only stages `docs/` and `src/build_search_db.py` -- any other
+pending changes in your working tree (LaTeX/pipeline work, README
+edits, etc.) are left uncommitted, exactly as they were; commit those
+yourself, separately. That separation is deliberate and worth keeping
+by hand too when you're not using the script: a commit that touches
+the print/TEI pipeline and a commit that touches the website are
+usually about two different things, even on days when you did both.
+
+One-time setup, if you haven't already: repo **Settings -> Pages ->
+Build and deployment -> Source: "Deploy from a branch"**, branch
+`main`, folder `/docs`. After that, every push that changes `docs/`
+redeploys automatically. To publish the same `docs/` folder to a
+non-GitHub-Pages server (e.g. an EC2 box already running Apache), just
+copy or `git pull` it there -- it's plain static files with no
+absolute paths, so it works unmodified at any URL depth.
+
 ## Known data-quality caveats
 
   * `originals/DLOtherFiles/HEADER` is mostly WordStar dot-commands and
@@ -365,7 +481,10 @@ All generated; all gitignored (see "Directory layout" above).
 | `generated/tei/lahu.xml` | TEI Lex-0 digital edition |
 | `generated/latex/lahu.html` | Rendered HTML |
 | `generated/latex/lahu.tex` | Rendered LaTeX dictionary body (not standalone; `\input` from `src/latex/lahu-master.tex`, checked-in, hand-authored) |
-| `generated/latex/lahu.pdf` | Compiled PDF (from `src/latex/lahu-master.tex`, which also holds the title page and table of contents -- see `src/latex/title.tex`/`toc.tex`) |
+| `generated/latex/frontmatter/*.tex`, `backmatter/*.tex` | Rendered LaTeX front/back matter, one file per recovered document (from `src/process_front_and_back_matter.py`) |
+| `generated/latex/frontmatter-pre-toc.tex`, `frontmatter-post-toc.tex`, `backmatter.tex` | Ordered `\input` lists for the files above (also generated -- see that script's module docstring for the order and why) |
+| `generated/front-back-matter-report.log` | Front/back matter conversion warnings tally |
+| `generated/latex/lahu.pdf` | Compiled PDF (from `src/latex/lahu-master.tex`, which also holds the title page, table of contents, and front/back matter -- see `src/latex/title.tex`/`toc.tex`) |
 
 See inline comments in each script for line-level detail,
 `README-lex2xml.md` for the XML conversion specifically, and

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Dictionary of Lahu &mdash; search</title>
+<meta name="description" content="A searchable digital edition of James A. Matisoff's The Dictionary of Lahu (1988), running entirely in your browser.">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+<header class="border-bottom bg-body-tertiary">
+  <div class="container py-3">
+    <h1 class="h3 mb-0">The Dictionary of Lahu</h1>
+    <p class="text-muted small mb-0">James A. Matisoff, 1988 &mdash; searchable digital edition. Runs entirely in
+      your browser: no server, nothing sent anywhere. See the
+      <a href="https://github.com/jblowe/dictionary-of-lahu">project repository</a> for the full PDF edition and
+      how this site was built.</p>
+  </div>
+</header>
+
+<main class="container py-3">
+
+  <!-- Search bar: field dropdown + value input + Search/Reset, view-mode icons on the right -->
+  <form id="search-form" class="mb-2" autocomplete="off">
+    <div class="row g-2 align-items-center">
+      <div class="col-auto">
+        <select id="field-select" class="form-select" aria-label="Search field">
+          <option value="all" selected>All fields</option>
+          <option value="headword">Headword</option>
+          <option value="definition">Definition</option>
+          <option value="pos">Part of speech</option>
+          <option value="notes">Notes</option>
+          <option value="loan">Loan source</option>
+        </select>
+      </div>
+      <div class="col">
+        <input id="search-value" type="text" class="form-control" placeholder="Type a search term&hellip;"
+               aria-label="Search value">
+      </div>
+      <div class="col-auto">
+        <button id="search-btn" type="submit" class="btn btn-primary">
+          <i class="bi bi-search"></i> Search
+        </button>
+      </div>
+      <div class="col-auto">
+        <button id="reset-btn" type="button" class="btn btn-outline-secondary">Reset</button>
+      </div>
+      <div class="col-auto ms-auto">
+        <div class="btn-group" role="group" aria-label="Result display mode">
+          <button id="view-paragraph-btn" type="button" class="btn btn-outline-secondary active"
+                  title="Paragraph view" aria-pressed="true">
+            <i class="bi bi-text-paragraph"></i>
+          </button>
+          <button id="view-table-btn" type="button" class="btn btn-outline-secondary"
+                  title="Table view" aria-pressed="false">
+            <i class="bi bi-table"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Breadcrumbs: accumulated field+value search terms, each removable -->
+  <div id="breadcrumbs" class="d-flex flex-wrap gap-2 mb-2"></div>
+
+  <!-- Status line: DB loading progress, then match counts -->
+  <div id="status" class="text-muted small mb-2" role="status" aria-live="polite">Loading search index&hellip;</div>
+
+  <!-- Pagination bar, above the results -->
+  <nav id="pagination" class="d-flex justify-content-between align-items-center mb-2 d-none"
+       aria-label="Results pages">
+    <div class="btn-group btn-group-sm">
+      <button id="prev-page-btn" type="button" class="btn btn-outline-secondary">&laquo; Previous</button>
+      <button id="next-page-btn" type="button" class="btn btn-outline-secondary">Next &raquo;</button>
+    </div>
+    <div id="page-info" class="text-muted small"></div>
+  </nav>
+
+  <div id="results"></div>
+
+</main>
+
+<footer class="border-top mt-4 py-3">
+  <div class="container text-muted small">
+    Data derived from <em>The Dictionary of Lahu</em> (University of California Publications in Linguistics,
+    Volume 111), digitized from the original 1988 WordStar production files. Not affiliated with or endorsed by
+    the University of California Press.
+  </div>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
