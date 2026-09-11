@@ -1,7 +1,12 @@
 // app.js -- Dictionary of Lahu static search site. Runs entirely client-side:
 // loads lahu-dictionary.sqlite3 (built by src/build_search_db.py) into an
 // in-memory SQLite database via the official sqlite3-wasm build (vendored in
-// vendor/sqlite3-wasm/, see that folder's README.md), then does all
+// lib/sqlite3-wasm/, see that folder's README.md -- NOT named "vendor/",
+// deliberately: some shared hosting boxes (including the project owner's
+// EC2 Apache) blanket-deny any path containing "/vendor/" as a hardening
+// rule against exposing PHP/Composer or npm dependency trees, which broke
+// this exact site with a "disallowed MIME type" console error -- the deny
+// rule returns an HTML 403 page for a JS module import), then does all
 // searching, paging, and rendering here.
 //
 // Modeled loosely on ~/GitHub/stedt-static's web/src/search.js (same
@@ -12,10 +17,10 @@
 // ~/GitHub/infrared's Bootstrap components, reimplemented as plain JS here
 // since that project renders them server-side with Jinja2.
 
-import sqlite3InitModule from './vendor/sqlite3-wasm/sqlite3-bundler-friendly.mjs';
+import sqlite3InitModule from './lib/sqlite3-wasm/sqlite3-bundler-friendly.mjs';
 
 const DB_URL = 'lahu-dictionary.sqlite3';
-const WASM_URL = 'vendor/sqlite3-wasm/sqlite3.wasm';
+const WASM_URL = 'lib/sqlite3-wasm/sqlite3.wasm';
 const PAGE_SIZE = 25;
 
 // Field dropdown -> the normalized column it searches (see
