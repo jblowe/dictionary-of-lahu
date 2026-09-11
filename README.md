@@ -362,8 +362,11 @@ The page itself (`docs/index.html` + `docs/app.js` + `docs/style.css`)
 is plain, hand-written JavaScript -- no Node/npm build step, no
 framework. It loads the whole `.sqlite3` file once into the browser's
 memory using the official `@sqlite.org/sqlite-wasm` build (vendored by
-hand into `docs/vendor/sqlite3-wasm/` -- see that folder's `README.md`
-for provenance and how to update it) and runs every search query
+hand into `docs/lib/sqlite3-wasm/` -- deliberately not `docs/vendor/...`,
+since some shared-hosting Apache setups blanket-deny any `/vendor/`
+path as a hardening rule and that broke this site's own EC2 deployment;
+see that folder's `README.md` for provenance and how to update it) and
+runs every search query
 locally; nothing is ever sent to a server. Layout uses Bootstrap 5
 (loaded from a CDN). A search result is always a whole dictionary
 article (headword + all its subentries), and the paragraph display
