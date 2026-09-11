@@ -1,14 +1,34 @@
 %% toc.tex -- table of contents for The Dictionary of Lahu.
-%% \input from src/latex/lahu-master.tex, after the title page and
-%% before the dictionary body.
+%% \input from src/latex/lahu-master.tex, after the front matter that
+%% precedes it (title page, dedication, preface in Lahu) and before the
+%% front matter that follows it (list of plates, acknowledgments,
+%% symbols and abbreviations, introduction, dictionary body, back
+%% matter) -- see lahu-master.tex's own \input sequence, and
+%% src/front-back-matter-order.csv for the reviewed, approved order
+%% this file's entries follow. Matches the order and section numbering
+%% of originals/DLOtherFiles/CONTENTS.TXE's own "TABLE OF CONTENTS"
+%% listing (lines 49-123), plus two back-matter appendices CONTENTS.TXE
+%% doesn't mention (Lahu Linguistic Terminology, Vocabulary Supplement)
+%% that are nonetheless included -- see process_front_and_back_matter.py's
+%% module docstring for why.
 %%
-%% This is a hand-built list, not a \tableofcontents. \dividerletter
-%% (see lahu-master.tex) drops a \label{div:X} at each of the 33
-%% letter-section breaks; each \tocline{X} below looks that label up
-%% with \pageref. The 33 letters and their order are the collation
-%% sequence itself (see the footer in lahu-master.tex, reconstructed
-%% from the HEADER file in the originals) -- fixed and known in
-%% advance, so there's nothing generated to keep in sync here.
+%% This is a hand-built list, not a \tableofcontents.
+%% src/process_front_and_back_matter.py drops a \label{toc:LABEL} at
+%% the top of each front/back-matter document it generates (LABEL
+%% matches the 'label' field in that script's manifest -- the two files
+%% must be kept in sync by hand if either changes); \dividerletter (see
+%% lahu-master.tex) drops \label{div:X} at each of the 33 letter-section
+%% breaks in the dictionary body. \tocline below looks either kind of
+%% label up with \pageref, so front-matter entries automatically show
+%% roman numerals and dictionary-body/back-matter entries automatically
+%% show arabic numerals -- \pageref just echoes whatever \pagenumbering
+%% was active on the page a label sits on; no separate handling needed
+%% here for that distinction.
+%%
+%% \tocsub is for outline sub-entries with no page of their own to link
+%% to (the Introduction's missing 1.0/2.0/2.1/3.0/4.0-4.5, and the
+%% Bibliography's I/II/III, which are internal headings within one
+%% continuous document rather than separately paginated sections).
 %%
 %% \tableofcontents + \addcontentsline was tried first and rejected:
 %% with all 33 dividers present, \addcontentsline corrupted one page
@@ -21,7 +41,8 @@
 %% Needs a second XeLaTeX pass (see lahu-master.tex's compile command)
 %% for page numbers to be correct, same as any LaTeX cross-reference.
 
-\newcommand{\tocline}[1]{\noindent #1\dotfill\pageref{div:#1}\par}
+\newcommand{\tocline}[2]{\noindent #1\dotfill\pageref{#2}\par}
+\newcommand{\tocsub}[1]{\noindent\hspace{1.5em}#1\par}
 
 \thispagestyle{empty}
 \begin{center}
@@ -29,41 +50,69 @@
 \end{center}
 \vspace{1.5em}
 
+\tocline{List of Plates}{toc:list-of-plates}
+\tocline{Acknowledgments}{toc:acknowledgments}
+\tocline{Symbols and Abbreviations}{toc:symbols-and-abbreviations}
+\tocline{Introduction to the \textit{Dictionary}}{toc:introduction}
+\tocsub{1.0\quad History of the Lahu dictionary project}
+\tocsub{2.0\quad The Lahu people and the Lahu language}
+\tocsub{\hspace{1.5em}2.1\quad The genetic position of Lahu}
+\tocline{\hspace{1.5em}2.2\quad Lahu dialects and cultural subdivisions}{toc:intro-2-2}
+\tocsub{3.0\quad Transcription and alphabetical order of entries}
+\tocsub{4.0\quad Structure and format of the individual entry}
+\tocsub{\hspace{1.5em}4.1\quad Lemmata and lemmatizational dilemmas}
+\tocsub{\hspace{1.5em}4.2\quad Form-classes}
+\tocsub{\hspace{1.5em}4.3\quad Glosses}
+\tocsub{\hspace{1.5em}4.4\quad Subentries}
+\tocsub{\hspace{1.5em}4.5\quad Remarks: cross references and etymologies}
+
+\vspace{0.8em}
+\tocline{The Dictionary of Lahu}{div:a}
+
 \begin{multicols}{2}
 \raggedright
-\tocline{a}
-\tocline{i}
-\tocline{u}
-\tocline{e}
-\tocline{o}
-\tocline{ɛ}
-\tocline{ɔ}
-\tocline{ɨ}
-\tocline{ə}
-\tocline{q}
-\tocline{qh}
-\tocline{k}
-\tocline{kh}
-\tocline{g}
-\tocline{ŋ}
-\tocline{c}
-\tocline{ch}
-\tocline{j}
-\tocline{t}
-\tocline{th}
-\tocline{d}
-\tocline{n}
-\tocline{p}
-\tocline{ph}
-\tocline{b}
-\tocline{m}
-\tocline{h}
-\tocline{g̈}
-\tocline{š}
-\tocline{y}
-\tocline{f}
-\tocline{v}
-\tocline{l}
+\tocline{a}{div:a}
+\tocline{i}{div:i}
+\tocline{u}{div:u}
+\tocline{e}{div:e}
+\tocline{o}{div:o}
+\tocline{ɛ}{div:ɛ}
+\tocline{ɔ}{div:ɔ}
+\tocline{ɨ}{div:ɨ}
+\tocline{ə}{div:ə}
+\tocline{q}{div:q}
+\tocline{qh}{div:qh}
+\tocline{k}{div:k}
+\tocline{kh}{div:kh}
+\tocline{g}{div:g}
+\tocline{ŋ}{div:ŋ}
+\tocline{c}{div:c}
+\tocline{ch}{div:ch}
+\tocline{j}{div:j}
+\tocline{t}{div:t}
+\tocline{th}{div:th}
+\tocline{d}{div:d}
+\tocline{n}{div:n}
+\tocline{p}{div:p}
+\tocline{ph}{div:ph}
+\tocline{b}{div:b}
+\tocline{m}{div:m}
+\tocline{h}{div:h}
+\tocline{g̈}{div:g̈}
+\tocline{š}{div:š}
+\tocline{y}{div:y}
+\tocline{f}{div:f}
+\tocline{v}{div:v}
+\tocline{l}{div:l}
 \end{multicols}
+
+\vspace{0.8em}
+\tocline{Appendix: Lahu Linguistic Terminology}{toc:appendix-lingterm}
+\tocline{Appendix: Vocabulary Supplement --- Birdnames}{toc:appendix-birdlist}
+\tocline{Bibliography}{toc:bibliography}
+\tocsub{I.\quad Works on the Lahu language and people}
+\tocsub{II.\quad Works written in Lahu}
+\tocsub{III.\quad Works consulted in preparing this \textit{Dictionary}}
+\tocline{Plates}{toc:plates}
 
 \clearpage

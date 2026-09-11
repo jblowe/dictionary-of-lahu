@@ -328,14 +328,22 @@ reference. Briefly:
   `tei:milestone` in the generated body), each a full-width rule/
   ornamental-letter/rule that closes and reopens `multicols`.
 - A standalone title page (`src/latex/title.tex`).
-- A table of contents (`src/latex/toc.tex`) listing all 33 letter
-  sections with page numbers. This is a **hand-built list using
-  `\label`/`\pageref`, not `\tableofcontents`/`\addcontentsline`** --
-  see the `\dividerletter` comment in `lahu-master.tex` for why:
+- A table of contents (`src/latex/toc.tex`) listing every front/back-
+  matter document (list of plates, acknowledgments, symbols and
+  abbreviations, the Introduction outline, the dictionary body's 33
+  letter sections, the two back-matter appendices, the bibliography,
+  and plates), each with a page number, matching the order in
+  `src/front-back-matter-order.csv` and the section order in
+  `originals/DLOtherFiles/CONTENTS.TXE`. This is a **hand-built list
+  using `\label`/`\pageref`, not `\tableofcontents`/`\addcontentsline`**
+  -- see the `\dividerletter` comment in `lahu-master.tex` for why:
   `\addcontentsline` corrupted a page of the compiled PDF when all 33
   dividers were present (a real hyperref/multicol interaction bug,
   confirmed by removing it), so don't reintroduce it without
-  re-testing a full 662-page compile.
+  re-testing a full compile. Front-matter entries automatically show
+  roman numerals and dictionary-body/back-matter entries automatically
+  show arabic numerals -- `\pageref` just echoes whatever
+  `\pagenumbering` was active on the page a label sits on.
 - A running footer (Lahu collation sequence, centered, on every body
   page) and a running head/footer with page numbers: page number in
   the outer corner (left on even/verso pages, right on odd/recto
@@ -404,6 +412,149 @@ sample -- worth remembering if you ever add a new render stylesheet
 that emits LaTeX: always run a full-document compile before trusting
 the escaping is complete.
 
+## Front/back matter
+
+`src/process_front_and_back_matter.py` recovers the dedication, list of
+plates, acknowledgments, symbols and abbreviations, bibliography, and
+three back-matter appendices from `originals/DLOtherFiles/` and renders
+them straight to LaTeX (`generated/latex/frontmatter/*.tex`,
+`backmatter/*.tex`), `\input` from `src/latex/lahu-master.tex` around
+the dictionary body. It's a separate script from `dl_convert.py` on
+purpose: it does its own document-level layout rendering (reflowing
+prose, preserving space-aligned tables verbatim, splicing multi-line
+runs) that doesn't belong in the core WordStar-to-Unicode converter,
+even though it imports and reuses a few of that script's byte-level
+functions (`mask_high_bit`, `preprocess_line`, `extract_and_convert_altfont`,
+etc.) rather than duplicating them.
+
+**Which files, and why.** `originals/DLOtherFiles/CONTENTS.TXE` turns
+out to be more than production notes -- lines 49-123 are a direct
+transcription of the book's own printed Table of Contents: List of
+Plates, Acknowledgments, Symbols and Abbreviations, an Introduction (with
+a full numbered outline, 1.0 through 4.5), the dictionary body,
+Bibliography (I/II/III), and Plates, in that order. `src/front-back-
+matter-order.csv` records this order (one row per section, reviewed and
+approved by the project owner) and is the document to edit if the order
+ever needs to change; the manifest in `process_front_and_back_matter.py`
+implements it.
+
+Of the Introduction's outline, only **2.2 "Lahu dialects and cultural
+subdivisions" survives**, as `DIALIST.TXA` ("The Divisions of the Lahu
+People") -- confirmed by title and content, not merely inferred. It was
+initially misfiled as an unassigned back-matter appendix before this
+match was found; it's now correctly placed in front matter, right where
+2.2 belongs. Sections 1.0, 2.0, 2.1, 3.0, and 4.0-4.5 have no surviving
+file anywhere in the archive -- confirmed by grepping every front/back-
+matter file for each section's distinctive language (genetic position,
+Sino-Tibetan, history of the dictionary project, lemmata,
+form-classes, subentries, etc.) and finding no match outside of
+`ABBREVS2.TXE`'s "Form Classes and Construction Types," which is a
+grammatical-abbreviation glossary, not the 4.2 essay. Rather than
+silently dropping these nine subsections, `_introduction_placeholder_entry()`
+renders one page reproducing the outline and marking each piece present
+or missing, so the gap is visible and navigable instead of silently
+absent.
+
+`LINGTERM.TXA` and `BIRDLIST.TXC` are a different case: real content,
+each headed "APPENDIX #" in the original with the number left blank --
+written, but never assigned a final position by the author, and not
+part of CONTENTS.TXE's own outline at all. Per the project owner,
+they're included as back-matter appendices (before the Bibliography)
+rather than over-interpreting CONTENTS.TXE as exhaustive.
+
+Excluded: `ABBREVS.TXB` (an earlier single-column draft of
+`ABBREVS2.TXE`, itself marked "REFORMAT INTO DOUBLE COLUMNS AFTER
+PROOFING -- KWW"); `BACKMATT.TXA` (an internal planning wishlist, not
+finished prose); `LAHUDICT.TXT` (a memo about the DL-ASCII keystroke
+scheme itself); `HEADER`/`LAHU.CHR`/`LQLAHU*` (binary printer
+font/character-ROM data, no text -- `HEADER` is separately used for
+the printed running-footer collation sequence, see `lahu_collate.py`).
+`LAHUPREF.TXA` is just the heading "PREFACE IN LAHU" with no surviving
+body text; it's still included, rendered as a near-blank page, so a
+reader following the running head finds an explicit placeholder rather
+than a silent gap. See the script's own module docstring and manifest
+tables (`FRONT_MATTER_PRE_TOC`, `FRONT_MATTER_POST_TOC`, `BACK_MATTER`)
+for the exact, single-source-of-truth list and order.
+
+**Rendering modes.** The original was typed on a fixed-width font, with
+tables and aligned columns done using runs of literal spaces -- there's
+no markup to recover that structure from otherwise. Each document is
+rendered in one of three modes, picked per file by inspection:
+`poem` (centered, line-for-line, no reflow -- the dedication and the
+preface stub), `prose` (blank-line-delimited paragraphs reflowed into
+normal justified text -- Acknowledgments), or `table` (monospace,
+`\obeyspaces` plus a custom active-end-of-line-character trick so both
+leading indentation and internal multi-space runs survive exactly --
+everything with space-aligned columns, including most of the
+appendices). `BIBLIOG.TXE` gets a dedicated `bibliography` mode: its
+own abbreviation-code table (`table` mode) followed by three
+roman-numeral-headed sections of ordinary author/year citations,
+reflowed into hanging-indent paragraphs like the dictionary body's own
+entries.
+
+**A LaTeX `\obeylines` gotcha found by compiling the real corpus:**
+`\obeyspaces` alone does not preserve a line's *leading* spaces --
+TeX's line-reading tokenizer skips them before catcodes even apply.
+The `table` renderer instead makes the end-of-line character itself
+active (`\catcode`\^^M=\active`) and defines it as `\\\relax` (not
+plain `\\`, and not `\obeylines`'s default `\par`): `\relax` blocks
+`\\`'s optional `[<length>]` lookahead, which otherwise misfires
+whenever a line happens to start with a literal `[` (e.g. DIALIST.TXA's
+"[Letter from David Bradley ... by dialect group.]"), throwing
+"Missing number"/"Illegal unit of measure" at compile time. Blank
+lines are replaced with `\strut` rather than emitted as-is, since two
+consecutive forced line breaks with nothing typeset between them is a
+separate LaTeX error ("There's no line here to end").
+
+**Two conversion bugs specific to this script, both fixed in it (not
+in `dl_convert.py`):**
+1. Several of these files (FRONTISP.TXE, PLATES.TXE, ACKNOWL.TXE,
+   BIBLIOG.TXE, ABBREVS2.TXE) have an ALTFONT run that opens on one
+   physical line and doesn't close until several lines later.
+   `dl_convert.py`'s plain-text pipeline converts one physical line at
+   a time, so only the run's first line converts correctly; this
+   script instead converts each file as one whole-file pass. That in
+   turn requires one safety filter: every one of these files' very
+   first surviving line is a single bare ALTFONT toggle byte with
+   nothing else on it, which the old per-line pipeline already safely
+   no-ops on, but which -- once lines are joined -- would otherwise run
+   forward looking for its close ANYWHERE LATER IN THE FILE, silently
+   converting large stretches of ordinary English through the Lahu
+   substitution table. Confirmed and fixed; see
+   `_LONE_TOGGLE_LINE_RE` in the script.
+2. WordStar's soft/optional line-wrap hyphen (0x1F directly followed by
+   a line break) marks a word split at the print margin with no real
+   hyphen intended (e.g. "many indi\x1f\r\nviduals" -> "individuals").
+   Reflowing wrapped lines back into paragraphs needs this spliced out
+   -- including the following line's leading indentation, which is
+   just wrap padding -- before rejoining with a single space, or the
+   result is a word split by a run of stray spaces instead of a
+   wrongly-spaced join. See `_SOFT_WRAP_HYPHEN_EOL_RE`.
+
+**Fonts.** `\ttfamily` needs an explicit `\setmonofont{DejaVu Sans
+Mono}` in `lahu-master.tex` (fontspec otherwise falls back to Latin
+Modern Mono, which lacks the IPA Extensions this corpus needs
+throughout). DejaVu Sans Mono is missing two characters DejaVu Serif
+has -- ˊ/ˋ (U+02CA/U+02CB, MODIFIER LETTER ACUTE/GRAVE ACCENT, the
+standalone form of a citation-form diacritic) -- given their own
+`\newunicodechar` fallback to `\rmfamily`, the same pattern already
+used for `≣`/`⪤` (see "Rendering: PDF" above).
+
+**Page numbering and page style.** Front matter (title page through
+the dedication/preface, the letter-based table of contents, and the
+plates-list/acknowledgments/symbols-and-abbreviations documents) is
+roman-numbered; the dictionary body resets to arabic 1; back matter
+continues the arabic numbering -- standard book convention. All of
+front and back matter uses `\pagestyle{plain}` rather than the
+dictionary body's `\pagestyle{fancy}`: the fancy footer's collation-
+sequence strip is a navigational aid specific to the alphabetical
+dictionary and doesn't belong on, say, the bibliography. A single
+`\thispagestyle{plain}` per document (set by `render_document`) isn't
+enough on its own for anything longer than one page -- confirmed by
+Acknowledgments' second page falling back to the fancy dictionary
+footer without the persistent `\pagestyle{plain}` also set in
+`lahu-master.tex` around the whole front/back matter section.
+
 ## A well-formedness wrinkle in the Lexware XML
 
 `generated/lahudico-lexware.xml` (produced by `src/lex2xml.py`) is not,
@@ -434,11 +585,14 @@ input is fed through it.
 | `src/lahu-to-tei.xsl` | The transducer: ad hoc Lexware-band XML to TEI Lex-0 |
 | `src/lahu-html.xsl` | TEI Lex-0 to HTML5 |
 | `src/lahu-latex.xsl` | TEI Lex-0 to XeLaTeX source (dictionary body only; see below) |
-| `src/latex/lahu-master.tex` | Hand-authored scaffold: documentclass/packages, body font, entry-formatting macros (`\headword`, `\dividerletter`, etc.), running head/footer, `\input`s title.tex/toc.tex/the generated body. Compile THIS with XeLaTeX, not `generated/latex/lahu.tex` directly |
+| `src/latex/lahu-master.tex` | Hand-authored scaffold: documentclass/packages, body font, entry-formatting macros (`\headword`, `\dividerletter`, etc.), running head/footer, page numbering/style switches, `\input`s title.tex/toc.tex/the generated dictionary body/the generated front-back matter. Compile THIS with XeLaTeX, not `generated/latex/lahu.tex` directly |
 | `src/latex/title.tex` | Hand-authored standalone title page, `\input` from lahu-master.tex |
 | `src/latex/toc.tex` | Hand-authored table of contents (`\label`/`\pageref`-based, not `\tableofcontents`; see "Rendering: PDF"), `\input` from lahu-master.tex |
 | `src/render_tei.py` | Generic XSLT runner (any stylesheet, any XML) |
+| `src/process_front_and_back_matter.py` | Recovers front/back matter from `originals/DLOtherFiles/` and renders it straight to LaTeX; see "Front/back matter" above |
 | `generated/tei/lahu.xml` | The transduced TEI Lex-0 edition (generated, gitignored) |
 | `generated/latex/lahu.html` | Rendered HTML (generated, gitignored) |
 | `generated/latex/lahu.tex` | Rendered LaTeX dictionary body (generated, gitignored; not standalone, see `src/latex/lahu-master.tex`) |
+| `generated/latex/frontmatter/*.tex`, `backmatter/*.tex` | Rendered LaTeX front/back matter, one file per document (generated, gitignored) |
+| `generated/latex/frontmatter-pre-toc.tex`, `frontmatter-post-toc.tex`, `backmatter.tex` | Ordered `\input` lists for the files above (generated, gitignored) |
 | `generated/latex/lahu.pdf` | Compiled PDF, from `src/latex/lahu-master.tex` (generated, gitignored) |
