@@ -7,8 +7,8 @@
 // If you ever see a "disallowed MIME type" console error loading the .mjs
 // or .wasm file here, it's almost certainly file permissions on the server
 // (Apache returning a 403/text-html error page for a mode-600 file), not a
-// path-naming issue -- see deploy-to-ec2.sh's --chmod flag and that
-// folder's README.md for the story.
+// path-naming issue -- see deploy-to-ec2.sh's remote chmod pass and
+// that folder's README.md for the story.
 //
 // Modeled loosely on ~/GitHub/stedt-static's web/src/search.js (same
 // "download the whole DB once, deserialize in-memory" approach, same

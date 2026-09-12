@@ -9,15 +9,18 @@ memory via `sqlite3_deserialize`; see docs/app.js). The worker/OPFS
 files that ship in the same package (`sqlite3-worker1.mjs`,
 `sqlite3-opfs-async-proxy.js`) aren't needed and weren't copied.
 
-Deliberately placed at `docs/lib/sqlite3-wasm/`, not `docs/vendor/...`:
-some shared-hosting Apache setups (including the project owner's own
-EC2 box) blanket-deny any path containing `/vendor/` as a hardening
-rule against accidentally exposing PHP/Composer or npm dependency
-trees. That rule doesn't care that this vendor/ was hand-placed rather
-than `npm install`-ed -- it 403's the path either way, and a browser
-refuses to run a JS module served as an HTML error page ("disallowed
-MIME type"). If you ever rename this folder back to `vendor/`, check
-your server doesn't have that rule first.
+Placed at `docs/lib/sqlite3-wasm/` rather than `docs/vendor/...` --
+purely a naming preference, no functional reason. (An earlier version
+of this note blamed a supposed Apache rule that blanket-denies
+`/vendor/` paths for a "disallowed MIME type" error seen on the EC2
+deployment; that theory was wrong and has been retracted -- the actual
+cause was file permissions: these files were being created locally at
+mode 600 and `rsync -a` faithfully shipped that mode to the server,
+where Apache returned a 403 (HTML) for a request expecting
+`application/javascript`, and a browser refuses to execute a JS module
+served as an HTML error page. See `deploy-to-ec2.sh`'s remote `chmod`
+pass, which now forces sane permissions on every deploy regardless of
+local file modes.) Renaming this folder to `vendor/` would be fine.
 
 To update: fetch a newer version of the same two files from
 https://www.npmjs.com/package/@sqlite.org/sqlite-wasm (e.g. via
