@@ -334,6 +334,27 @@ print-quality PDF (via XeLaTeX). See **README-tei.md** for full detail;
 this is a separate, later stage of the pipeline, so it gets its own
 README rather than duplicating everything here.
 
+**`extract_flat_file.py`** -- one-off export: walks
+`generated/tei/lahu.xml` (same two-level entry/subentry document-order
+traversal as `build_search_db.py` below) and writes
+`generated/lahu-flat.csv`, one row per headword and sub-headword, for
+spreadsheet-based review outside the TEI/LaTeX pipeline. Not part of
+`regenerate-all-files.sh`; run it by hand:
+
+```sh
+python3 src/extract_flat_file.py
+```
+
+**`extract_loans.py`** -- one-off export, reads `generated/lahu-flat.csv`
+and pulls out every `LOAN`/`LOAN?`-tagged entry, extracting a source
+language from its etymology note (the same regex-based extraction
+`build_search_db.py` reuses for the website's `search_loan_source`
+column). Writes `generated/lahu-loanwords.xlsx`:
+
+```sh
+python3 src/extract_loans.py
+```
+
 ## Static search website (docs/)
 
 `docs/` is a self-contained, client-side-only website -- a searchable
@@ -362,11 +383,8 @@ The page itself (`docs/index.html` + `docs/app.js` + `docs/style.css`)
 is plain, hand-written JavaScript -- no Node/npm build step, no
 framework. It loads the whole `.sqlite3` file once into the browser's
 memory using the official `@sqlite.org/sqlite-wasm` build (vendored by
-hand into `docs/lib/sqlite3-wasm/` -- deliberately not `docs/vendor/...`,
-since some shared-hosting Apache setups blanket-deny any `/vendor/`
-path as a hardening rule and that broke this site's own EC2 deployment;
-see that folder's `README.md` for provenance and how to update it) and
-runs every search query
+hand into `docs/lib/sqlite3-wasm/` -- see that folder's `README.md`
+for provenance and how to update it) and runs every search query
 locally; nothing is ever sent to a server. Layout uses Bootstrap 5
 (loaded from a CDN). A search result is always a whole dictionary
 article (headword + all its subentries), and the paragraph display
@@ -412,10 +430,27 @@ usually about two different things, even on days when you did both.
 One-time setup, if you haven't already: repo **Settings -> Pages ->
 Build and deployment -> Source: "Deploy from a branch"**, branch
 `main`, folder `/docs`. After that, every push that changes `docs/`
-redeploys automatically. To publish the same `docs/` folder to a
-non-GitHub-Pages server (e.g. an EC2 box already running Apache), just
-copy or `git pull` it there -- it's plain static files with no
-absolute paths, so it works unmodified at any URL depth.
+redeploys automatically.
+
+**Deploying to a non-GitHub-Pages server.** `src/deploy-to-ec2.sh`
+copies `docs/` (the website) and `generated/` (the full pipeline
+output, for anyone who wants the raw TEI/HTML/PDF alongside the
+searchable site) to a plain Apache box via `rsync` -- both are plain
+static files with no absolute paths, so they work unmodified at any
+URL depth:
+
+```sh
+src/deploy-to-ec2.sh                     # uses the defaults baked into the script
+PEM_KEY=~/.ssh/other.pem EC2_HOST=1.2.3.4 src/deploy-to-ec2.sh   # override per run
+```
+
+After the transfer it always runs an explicit remote `chmod` pass
+(`644` on files, `755` on directories) rather than trusting whatever
+permissions the files happen to have locally -- worth knowing because
+a file created at mode `600` and copied verbatim is exactly what once
+made this site 403 on EC2 with a "disallowed MIME type" error (Apache
+returning an HTML error page for a JS module import). If a deploy ever
+does 403 again, that's the first thing to check.
 
 ## Known data-quality caveats
 
@@ -480,6 +515,8 @@ All generated; all gitignored (see "Directory layout" above).
 | `generated/conversion-report.log` | Aggregate stripped/unknown-character tally |
 | `generated/lex2xml-report.log` | XML tag-frequency statistics |
 | `generated/DLLexwareFiles-plaintext/lex.LH-*.TXE.txt` | Authentic 1994 Lexware output, Unicode (cross-check) |
+| `generated/lahu-flat.csv` | Whole dictionary flattened to one row per headword/sub-headword, for spreadsheet review (`src/extract_flat_file.py`) |
+| `generated/lahu-loanwords.xlsx` | Every `LOAN`/`LOAN?`-tagged entry with extracted source language, formatted spreadsheet (`src/extract_loans.py`, reads the CSV above) |
 | `src/lahu-tei-lex0.xml` | Annotated TEI header/entry-structure reference (checked-in, hand-written) |
 | `generated/tei/lahu.xml` | TEI Lex-0 digital edition |
 | `generated/latex/lahu.html` | Rendered HTML |
@@ -488,6 +525,17 @@ All generated; all gitignored (see "Directory layout" above).
 | `generated/latex/frontmatter-pre-toc.tex`, `frontmatter-post-toc.tex`, `backmatter.tex` | Ordered `\input` lists for the files above (also generated -- see that script's module docstring for the order and why) |
 | `generated/front-back-matter-report.log` | Front/back matter conversion warnings tally |
 | `generated/latex/lahu.pdf` | Compiled PDF (from `src/latex/lahu-master.tex`, which also holds the title page, table of contents, and front/back matter -- see `src/latex/title.tex`/`toc.tex`) |
+
+**Exception: `docs/`.** These two files are also generated -- by
+`src/build_search_db.py`, from `generated/tei/lahu.xml` -- but unlike
+everything above, they're checked into git rather than gitignored,
+since GitHub Pages serves `docs/` directly (see "Static search
+website" above):
+
+| File | What |
+|---|---|
+| `docs/lahu-dictionary.sqlite3` | The search website's whole database (client-side SQLite, loaded via `sqlite3_deserialize`) |
+| `docs/db-meta.json` | The database's true (decompressed) byte size, for the page's download-progress indicator |
 
 See inline comments in each script for line-level detail,
 `README-lex2xml.md` for the XML conversion specifically, and
