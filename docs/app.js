@@ -1,13 +1,14 @@
 // app.js -- Dictionary of Lahu static search site. Runs entirely client-side:
 // loads lahu-dictionary.sqlite3 (built by src/build_search_db.py) into an
-// in-memory SQLite database via the official sqlite3-wasm build (vendored in
-// lib/sqlite3-wasm/, see that folder's README.md -- NOT named "vendor/",
-// deliberately: some shared hosting boxes (including the project owner's
-// EC2 Apache) blanket-deny any path containing "/vendor/" as a hardening
-// rule against exposing PHP/Composer or npm dependency trees, which broke
-// this exact site with a "disallowed MIME type" console error -- the deny
-// rule returns an HTML 403 page for a JS module import), then does all
+// in-memory SQLite database via the official sqlite3-wasm build (vendored
+// by hand in lib/sqlite3-wasm/, see that folder's README.md), then does all
 // searching, paging, and rendering here.
+//
+// If you ever see a "disallowed MIME type" console error loading the .mjs
+// or .wasm file here, it's almost certainly file permissions on the server
+// (Apache returning a 403/text-html error page for a mode-600 file), not a
+// path-naming issue -- see deploy-to-ec2.sh's --chmod flag and that
+// folder's README.md for the story.
 //
 // Modeled loosely on ~/GitHub/stedt-static's web/src/search.js (same
 // "download the whole DB once, deserialize in-memory" approach, same
