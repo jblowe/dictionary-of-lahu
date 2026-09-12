@@ -8,6 +8,18 @@
 # what changed on repeat runs instead of the whole tree every time. Falls
 # back to scp -r if rsync isn't installed locally or on the remote box.
 #
+# Always fixes permissions on the remote side after transferring, rather
+# than trusting local source permissions: whatever tool created a given
+# file locally, files under docs/ and generated/ have turned up with all
+# sorts of local permission bits over the life of this project -- some
+# rw-------, unreadable by anyone but their owner. rsync -a (and plain
+# scp -r) both can ship a mode like that straight to the server, where it
+# 403's for Apache (running as a different user) -- exactly what broke
+# the search website the first time this script ran. (rsync also has a
+# --chmod flag that does this during the transfer itself, but it needs a
+# fairly recent rsync -- macOS's bundled one predates it -- so this script
+# does the fix-up as a separate, portable ssh/chmod pass instead.)
+#
 # Edit the four variables below for your setup, or override them on the
 # command line, e.g.:
 #   EC2_HOST=1.2.3.4 src/deploy-to-ec2.sh
@@ -42,5 +54,9 @@ else
   echo "==> rsync not found locally -- falling back to scp (copies everything, every time)"
   scp -r -i "$PEM_KEY" docs generated "$EC2_USER@$EC2_HOST:$REMOTE_DIR/"
 fi
+
+echo "==> Fixing remote permissions (Apache needs to be able to read these, regardless of local source modes)"
+ssh -i "$PEM_KEY" "$EC2_USER@$EC2_HOST" \
+  "find '$REMOTE_DIR/docs' '$REMOTE_DIR/generated' -type d -exec chmod 755 {} \; ; find '$REMOTE_DIR/docs' '$REMOTE_DIR/generated' -type f -exec chmod 644 {} \;"
 
 echo "==> Done. Remote layout: $REMOTE_DIR/docs/, $REMOTE_DIR/generated/"
