@@ -72,7 +72,12 @@ reproducible and gitignored (see `.gitignore`). Three top-level folders:
     PDF scaffold -- `lahu-master.tex` (documentclass, packages, entry
     macros, running head/footer), `title.tex` (title page), `toc.tex`
     (table of contents) -- which `\input`s the generated dictionary
-    body; see README-tei.md's "Rendering: PDF".
+    body; see README-tei.md's "Rendering: PDF". Also holds
+    `corrections-lahu.csv`/`corrections-english.csv`, the curated,
+    human-reviewed proofreading fixes `apply_corrections.py` applies on
+    every run -- checked-in script parameters in the same sense as
+    `file-order.txt`, not generated output; see "Proofreading and
+    corrections" below.
 
 The READMEs live at the project root, alongside these three folders.
 
@@ -103,6 +108,13 @@ src/file-order.csv / file-order.xlsx / file-order.txt
 generated/lahudico-plaintext.txt   (whole dictionary, plain text, in order)
 generated/lahudico-lexware.txt     (whole dictionary, Lexware bands, in order)
         |
+        |  src/apply_corrections.py  (apply curated proofreading fixes --
+        |                             src/corrections-lahu.csv / -english.csv)
+        v
+generated/lahudico-lexware.txt     (same file, in place, with any approved
+                                     fixes applied -- see "Proofreading and
+                                     corrections" below)
+        |
         |  src/lex2xml.py  (Lexware -> XML, from scratch)
         v
 generated/lahudico-lexware.xml     (whole dictionary, XML)
@@ -131,7 +143,7 @@ generated/latex/backmatter.tex         bibliography, appendices)|
 
 Run from the project root (the folder containing `originals/`,
 `generated/`, and `src/`). The whole pipeline is wrapped in one script,
-`src/regenerate-all-files.sh`, which runs all nine steps below in
+`src/regenerate-all-files.sh`, which runs all ten steps below in
 order and stops on the first error:
 
 ```
@@ -145,6 +157,7 @@ of the pipeline, e.g. after editing just the render stylesheets):
 python3 src/dl_convert.py .
 python3 src/order_files.py .
 src/concat_master.sh .
+python3 src/apply_corrections.py generated/lahudico-lexware.txt
 python3 src/lex2xml.py generated/lahudico-lexware.txt generated/lahudico-lexware.xml generated/lex2xml-report.log Lahu
 python3 src/render_tei.py --tei generated/lahudico-lexware.xml --xsl src/lahu-to-tei.xsl --out generated/tei/lahu.xml
 python3 src/render_tei.py --tei generated/tei/lahu.xml --xsl src/lahu-html.xsl --out generated/latex/lahu.html
@@ -214,7 +227,7 @@ legacy Perl scripts and the STEDT table live in `originals/src/`
 instead -- see "Directory layout" above.)
 
 **`regenerate-all-files.sh`** -- runs the whole pipeline end to end
-(all eight steps below, in order, stopping on the first error): the
+(all ten steps below, in order, stopping on the first error): the
 one command in "Run from the project root" above. Takes the same
 optional project-root argument as `dl_convert.py`/`order_files.py`/
 `concat_master.sh` (defaults to the parent of `src/`).
@@ -310,6 +323,16 @@ correct tone order after sorting.
 files in the order from `src/file-order.txt`, producing
 `generated/lahudico-plaintext.txt` and `generated/lahudico-lexware.txt`.
 
+**`apply_corrections.py`** -- applies every row in the curated
+`src/corrections-lahu.csv` and `src/corrections-english.csv` to
+`generated/lahudico-lexware.txt`, in place, before it becomes XML --
+see "Proofreading and corrections" below for the full design (why
+corrections live here rather than being hand-edited into any single
+output format, how a row addresses a specific entry/sub-entry, and the
+uniqueness guard that keeps a fix from landing in the wrong place).
+With both CSVs empty (their normal starting state, and their state
+right now), this step is a byte-for-byte no-op.
+
 **`lex2xml.py`** -- a faithful, empirically-verified Python port of
 `Lex2XML.pl` (see `README-lex2xml.md` for details). Produces
 `generated/lahudico-lexware.xml` from `generated/lahudico-lexware.txt`.
@@ -354,6 +377,123 @@ column). Writes `generated/lahu-loanwords.xlsx`:
 ```sh
 python3 src/extract_loans.py
 ```
+
+## Proofreading and corrections
+
+The dictionary is being proofread -- both the English (definitions,
+notes, usage labels) and the Lahu (headwords, sub-headwords, examples)
+-- and any fix that comes out of that needs a durable home. Because
+`originals/` is never touched and everything under `generated/` is
+fully reproducible from `originals/` + `src/` on every run (see
+"Directory layout" above), a fix can't just be hand-edited into the
+HTML, the PDF, or the search site's database -- any of those would be
+silently overwritten the next time the pipeline runs, and hand-editing
+each of them separately would let them drift out of sync with each
+other.
+
+Instead, a correction is a row in one of two small, permanent, checked-in
+CSVs -- `src/corrections-lahu.csv` for Lahu-text fixes,
+`src/corrections-english.csv` for English-text fixes -- applied by
+`src/apply_corrections.py` to `generated/lahudico-lexware.txt` as its
+own pipeline step, right after `concat_master.sh` and right before
+`lex2xml.py` (see the pipeline diagram above). Every artifact
+downstream of that point -- the ad hoc XML, the TEI, the HTML/PDF, the
+flat CSV, the search website's database -- then inherits the fix for
+free on every future regeneration, with no per-format patching.
+
+**Row format** (both CSVs share the same columns):
+
+| Column | Meaning |
+|---|---|
+| `entry_id` | Which entry or sub-entry the fix belongs to, e.g. `Lahu.234` (a headword) or `Lahu.234.2` (its 2nd sub-entry) -- the same IDs already visible in `generated/tei/lahu.xml` and as the `entry_id`/`parent_id` columns of `generated/lahu-flat.csv` |
+| `field` | Optional: the band name to restrict the match to (`hw`, `pos`, `gl`, `no`, `ex`, `ld`, `bz`) -- narrows an otherwise-ambiguous match, but isn't required |
+| `old_text` | The exact text to replace, copied verbatim from the source (not retyped -- see the tone-diacritic caveat below) |
+| `new_text` | Its replacement -- must be non-empty and different from `old_text` (`apply_corrections.py` refuses an empty `new_text`, since that's almost always a review-sheet row copied in before anyone filled in an actual fix -- see below) |
+| `reason` | Free text: why this is a fix |
+| `source` | Free text: what flagged it (`manual`, or the detector script that found it, e.g. `detect_english_candidates.py:split-word`) |
+
+`apply_corrections.py` re-derives each entry_id/sub-entry_id
+independently, by walking the Lexware band file with the exact same
+counting rule `lex2xml.py` and `lahu-to-tei.xsl` use to assign those
+IDs in the first place (see the script's own module docstring for the
+details -- there's no shared code between the three, only a shared,
+documented convention, so if the band format or either script's
+counting rule ever changes, this one needs to change with it). A
+correction is only ever applied if its `old_text` matches, verbatim,
+**exactly once** among that entry's own band lines (further narrowed
+by `field`, if given) -- zero matches or more than one match is a hard
+error naming the offending row, the same uniqueness discipline as the
+`Edit` tool's own `old_string` check. This matters more than usual
+here: Lahu tone diacritics are contrastive (a/à/â/ā are different
+syllables), so a fuzzy match could silently change which word an entry
+means -- which is also why `old_text` should always be copied from the
+actual source text, never retyped by hand.
+
+With both CSVs holding zero rows (their state right now), this
+pipeline step is a byte-for-byte no-op -- confirmed by running it
+against the current `generated/lahudico-lexware.txt` and diffing the
+result. To add a fix, append a row to the appropriate CSV and re-run
+the pipeline (or just `python3 src/apply_corrections.py` on its own to
+check it applies cleanly, with `--dry-run` to preview without writing
+anything).
+
+**Finding candidates.** Two detector scripts scan the current
+`generated/lahu-flat.csv` and each write a disposable review sheet
+under `generated/` -- never `src/corrections-*.csv` directly, and
+never anything a human hasn't looked at:
+
+```sh
+python3 src/detect_english_candidates.py   # -> generated/proofreading-candidates-english.csv
+python3 src/detect_lahu_candidates.py      # -> generated/proofreading-candidates-lahu.csv
+```
+
+Both are deliberately conservative -- built and tuned by trial and
+error against this exact dictionary until the false-positive rate was
+low enough to be worth a human's time, favoring fewer, better
+candidates over catching everything (see each script's own module
+docstring for the full story of what didn't work and why):
+
+  * **`detect_english_candidates.py`** runs two checks over the
+    English `definition`/`notes` text: a **split-word** check (two
+    adjacent unknown tokens whose concatenation is a real word, e.g.
+    "physi cally" -> "physically" -- almost always a WordStar line-wrap
+    that survived conversion as a literal space) and a tightly-gated
+    **single-word typo** check (an isolated, uncommon word exactly one
+    edit from something common). Both proposed a specific `new_text`,
+    since the fix is usually unambiguous once the pattern is spotted.
+    Requires the `spellchecker` package (`pyspellchecker`;
+    `pip install pyspellchecker --break-system-packages` if missing) --
+    an offline word-frequency dictionary, no network calls. On the
+    current dictionary this finds on the order of 50 candidates out of
+    ~62,000 English field values scanned, with a spot-checked precision
+    well above what a generic spellchecker gets on this text (an early,
+    unfiltered version flagged over 1,000 "misspellings," almost all
+    wrong -- mostly Latin species names, foreign etymology citations,
+    and Matisoff's own technical linguistics coinages).
+  * **`detect_lahu_candidates.py`** runs two structural checks, since
+    there's no off-the-shelf Lahu dictionary or spellchecker to check
+    against -- only the dictionary's own ~31,000 headwords/sub-headwords
+    as a corpus: a **sub-entry root** check (a sub-entry should share
+    at least one morpheme with its parent headword; flags the rare case
+    where it shares none) and a **cross-reference target** check (an
+    etymological note reading "cf. TARGET (POS)" names another entry in
+    this dictionary; flags TARGET when it can't be found anywhere in
+    the headword/sub-headword index). Neither check proposes a
+    `new_text` -- these surface a genuine structural anomaly, but
+    whether the sub-entry, its parent, the reference, or the reference's
+    target has the actual error needs a human (ideally someone who
+    knows Lahu) to look at the real entry and decide. Leave `new_text`
+    blank in the row until you've worked that out; `apply_corrections.py`
+    will refuse to apply it otherwise, precisely to stop a
+    not-yet-resolved review-sheet row from being copied into
+    `src/corrections-lahu.csv` by accident.
+
+Scope for both detectors, and for `apply_corrections.py` itself, is
+currently the dictionary body only (`generated/lahudico-lexware.txt`);
+the recovered front/back matter
+(`src/process_front_and_back_matter.py`, reading directly from
+`originals/DLOtherFiles/`) is a separate pipeline path not covered by
+any of this.
 
 ## Static search website (docs/)
 
@@ -510,13 +650,16 @@ All generated; all gitignored (see "Directory layout" above).
 | `generated/DLWordStarFiles/base-lexware/LOG.*.txt` | Per-file parse-warning logs |
 | `src/file-order.csv` / `.xlsx` / `.txt` | Collation order of the 135 body files (checked-in parameter, not gitignored) |
 | `generated/lahudico-plaintext.txt` | Whole dictionary, plain text, in order |
-| `generated/lahudico-lexware.txt` | Whole dictionary, Lexware bands, in order |
+| `generated/lahudico-lexware.txt` | Whole dictionary, Lexware bands, in order (curated corrections from `src/corrections-*.csv` already applied) |
+| `generated/corrections-report.log` | Which corrections were applied to the file above, and why (`src/apply_corrections.py`) |
 | `generated/lahudico-lexware.xml` | Whole dictionary, XML |
 | `generated/conversion-report.log` | Aggregate stripped/unknown-character tally |
 | `generated/lex2xml-report.log` | XML tag-frequency statistics |
 | `generated/DLLexwareFiles-plaintext/lex.LH-*.TXE.txt` | Authentic 1994 Lexware output, Unicode (cross-check) |
 | `generated/lahu-flat.csv` | Whole dictionary flattened to one row per headword/sub-headword, for spreadsheet review (`src/extract_flat_file.py`) |
 | `generated/lahu-loanwords.xlsx` | Every `LOAN`/`LOAN?`-tagged entry with extracted source language, formatted spreadsheet (`src/extract_loans.py`, reads the CSV above) |
+| `generated/proofreading-candidates-english.csv` | English-text proofreading candidates for human review (`src/detect_english_candidates.py`) -- disposable, not the same as `src/corrections-english.csv` |
+| `generated/proofreading-candidates-lahu.csv` | Lahu-text proofreading candidates for human review (`src/detect_lahu_candidates.py`) -- disposable, not the same as `src/corrections-lahu.csv` |
 | `src/lahu-tei-lex0.xml` | Annotated TEI header/entry-structure reference (checked-in, hand-written) |
 | `generated/tei/lahu.xml` | TEI Lex-0 digital edition |
 | `generated/latex/lahu.html` | Rendered HTML |
